@@ -1,54 +1,69 @@
 <?php
 
+// ****************** connexion à la base de données **********************
+
+
+function getConnection()
+{
+    try {
+        $bdd = new PDO('mysql:host=localhost;dbname=online_store;charset=utf8', 'hugo', 'H30flm645@', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+    } catch (Exception $e) {
+        die('Erreur : ' . $e->getMessage());
+    }
+    return $bdd;
+}
+
+
+
+// function getArticlesSelected($selected)
+// {
+//     $chaine = join(',', $selected);
+//     $bdd = getConnection();
+//     $query = $bdd->prepare('SELECT * FROM Articles WHERE idArticles = ? ');
+//     $query->execute(array($chaine));
+//     $resultat = $query->fetchAll();
+//     var_dump($resultat);
+//     return $resultat;
+// }
+
+
+// function getClients()
+// {
+//     $bdd = getConnection();
+//     $query = $bdd->query('SELECT * FROM Clients');
+//     $resultat = $query->fetchAll();
+//     return $resultat;
+// }
+
+
+// function getAdresses()
+// {
+//     $bdd = getConnection();
+//     $query = $bdd->query('SELECT * FROM Adresses');
+//     $resultat = $query->fetchAll();
+//     return $resultat;
+// }
+
+
+
 // ****************** récupérer la liste des articles **********************
 
 function getArticles()
 {
 
-    $article1 = [
-        'name' => 'Dark Watch',
-        'id' => '1',
-        'price' => 149.99,
-        'description' => 'Moderne et élégante',
-        'detailedDescription' => 'Designée par nos experts, elle impose son style partout où elle passe. 
-                                  Elle allie le noir profond au plus beau bleu royal.
-                                  Equipée d\'un altimètre, elle affiche également la météo.  
-                                  Prix agressif et allure avant-gardiste : vous ne serez pas déçu.',
-        'picture' => 'watch1.jpg'
-    ];
-
-    $article2 = [
-        'name' => 'Classic Leather',
-        'id' => '2',
-        'price' => 229.49,
-        'description' => 'Affiche l\'heure de 250 pays',
-        'detailedDescription' => 'Une montre qui respire la maturité avec son superbe bracelet en cuir authentique. 
-                                  Fonction incroyable permettant de consulter toutes les heures du globe.
-                                  Elégance garantie avec son cadran cerclé d\'argent.
-                                  Elle est destinée aux pères de famille qui aiment se faire plaisir.',
-        'picture' => 'watch2.jpg'
-    ];
-
-    $article3 = [
-        'name' => 'Silver Star',
-        'id' => '3',
-        'price' => 345.99,
-        'description' => 'La classe à l\'état pur',
-        'detailedDescription' => '100% acier inoxydable haute résistance. 
-                                  Vous allez impressionner la galerie avec cette merveille !
-                                  Aiguilles phosphorescentes et cadran incassable avec vitre en plexiglas.  
-                                  N\'attendez plus et révélez le sportif en vous !',
-        'picture' => 'watch3.jpg'
-    ];
-
-    $articles = array();
-
-    array_push($articles, $article1);
-    array_push($articles, $article2);
-    array_push($articles, $article3);
-
-    return $articles;
+     $bdd = getConnection();
+     $query = $bdd->query('SELECT * FROM Articles');
+     return $query->fetchAll();
 }
+
+// function getArticle($id)
+// {
+//     $bdd = getConnection();
+//     $resultat = $bdd->prepare('SELECT * FROM Articles WHERE idArticles = ?');
+//     $resultat->execute(array($id));
+//     $result = $resultat->fetch();
+//     return $result;
+// }
 
 
 
@@ -60,11 +75,11 @@ function showArticles()
 
     foreach ($articles as $article) {
         echo "<div class=\"card col-md-5 col-lg-3 p-3 m-3\" style=\"width: 18rem;\">
-                <img class=\"card-img-top\" src=\"images/" . $article['picture'] . "\" alt=\"Card image cap\">
+                <img class=\"card-img-top\" src=\"images/" . $article['image'] . "\" alt=\"Card image cap\">
                 <div class=\"card-body\">
-                    <h5 class=\"card-title font-weight-bold\">" . $article['name'] . "</h5>
+                    <h5 class=\"card-title font-weight-bold\">" . $article['nom'] . "</h5>
                     <p class=\"card-text font-italic\">" . $article['description'] . "</p>
-                    <p class=\"card-text font-weight-light\">" . $article['price'] . " €</p>
+                    <p class=\"card-text font-weight-light\">" . $article['prix'] . " €</p>
                     <form action=\"product.php\" method=\"post\">
                         <input type=\"hidden\" name=\"articleToDisplay\" value=\"" . $article['id'] . "\">
                         <input class=\"btn btn-light\" type=\"submit\" value=\"Détails produit\">
@@ -232,3 +247,17 @@ function emptyCart($showConfirmation)
         echo "<script> alert(\"Le panier a bien été vidé\");</script>";
     }
 }
+
+
+// function ajoutCommandeBDD ($_SESSION)
+// {
+//     $bdd = getConnection();
+//     $req = $bdd-> query('INSERT INTO Commandes (`id`,`Numéro`, `Date`, `Clients_ID`, `Adresses_idAdresses`, `Adresses_idAdresses1`)
+//         VALUES (21, rand(1000000000,9999999999),date("Y", "m", "d", "H", "i"), 1, 1, 1)');
+//     //public PDO::lastInsertId ([ string $name = NULL ] ) : string;
+//     foreach ($_SESSION['panier'] as $article)
+//     {
+//         $req2 = $bdd->query('INSERT INTO Commandes_has_articles (`Commandes_ID`, `Articles_idArticles`, `Prix`, `Quantité`) 
+//         VALUES (21, '$article['id']','$article['prix']','$article['quantite']')');
+//     }
+// }
