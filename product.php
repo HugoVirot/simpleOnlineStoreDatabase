@@ -30,9 +30,9 @@ if (isset($_POST['articleToDisplay'])) {
     </header>
 
     <main>
-        <div class="container p-5">
+        <div class="container p-1">
             <div class="row justify-content-center">
-                <img src="images/<?php echo $articleToDisplay['picture'] ?>">
+                <img src="images/<?php echo $articleToDisplay['image'] ?>">
             </div>
         </div>
 
@@ -40,16 +40,16 @@ if (isset($_POST['articleToDisplay'])) {
 
             <?php
             echo "<div class=\"row pt-5 text-center font-weight-bold align-items-center bg-light p-3 justify-content-center\">
-                                <h2>" . $articleToDisplay['name'] . "</h2>
+                                <h2>" . $articleToDisplay['nom'] . "</h2>
                         </div>
                       <div class=\"row text-center font-italic align-items-center bg-light p-3 justify-content-center\">
                                 <h5>" . $articleToDisplay['description'] . "<h5>
                       </div>
                       <div class=\"row text-center align-items-center bg-light p-3 ml-5 mr-5 justify-content-center\">
-                      <p>" . $articleToDisplay['detailedDescription'] . "<p>
+                      <p>" . $articleToDisplay['description_detaillee'] . "<p>
                      </div>
                       <div class=\"row text-center font-weight-light align-items-center bg-light p-3 justify-content-center\">    
-                                <h4>" . $articleToDisplay['price'] . " €</h4>
+                                <h4>" . $articleToDisplay['prix'] . " €</h4>
                       </div>
                       <div class=\"row pb-5 text-center align-items-center bg-light p-3 justify-content-center\"> 
                              <form action=\"panier.php\" method=\"post\">

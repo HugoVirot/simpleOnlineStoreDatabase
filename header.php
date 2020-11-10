@@ -1,4 +1,12 @@
 <header>
+    <?php
+    if (isset($_SESSION['id']) && isset($_SESSION['prenom']) && isset($_SESSION['nom'])) {
+        echo "<div class=\"container w-50 pt-3\">
+                <div class=\"row justify-content-center text-center\">Connecté en tant que " . $_SESSION['prenom'] . " " . $_SESSION['nom'] . "
+                </div>
+              </div>";
+    }
+    ?>
     <div class="container-fluid text-center">
         <a href="index.php" style="text-decoration: none; color: inherit">
             <h1 class="pt-5">Arinfo</h1>
@@ -14,8 +22,24 @@
                             <a class="nav-link" href="index.php">Accueil<span class="sr-only">(current)</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="panier.php">Panier (<span><?php echo count($_SESSION['cart']) ?></span>)
+                            <a class="nav-link" href="panier.php">Panier<span>
+                                    <?php
+                                    if (isset($_SESSION['cart'])) {
+                                        echo "(" . count($_SESSION['cart']) . ")";
+                                    } ?>
+                                </span>
                             </a>
+                        </li>
+                        <li class="nav-item">
+                            <?php
+                            if (!isset($_SESSION['id'])) {
+                                echo "<a class=\"nav-link\" href=\"connection.php\">Connexion / créer compte</a>";
+                            } else {
+                                echo "<form action=\"index.php\" method=\"post\" class=\"nav-link\">
+                                      <input type=\"hidden\" name=\"logout\">
+                                      <input class=\"bg-light\" style=\"border: none\" type=\"submit\" value=\"Déconnexion\">
+                                      </form>";
+                            } ?>
                         </li>
                     </ul>
                 </div>

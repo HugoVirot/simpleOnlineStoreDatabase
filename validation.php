@@ -23,7 +23,10 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
     emptyCart($showConfirmation = true);
 }
 
-// var_dump($_POST);
+if (isset($_POST['addressChanged'])){
+    updateAddress();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -55,29 +58,7 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
         <div class="container text-center mb-3">
             <h3 class="mb-5">Récapitulatif de votre commande</h3>
             <?php
-            foreach ($_SESSION['cart'] as $chosenArticle) {
-                echo "<div class=\"row text-center text-light align-items-center bg-dark p-3 justify-content-around mb-1\">
-                                <img style=\"width: 50px\" src=\"images/" . $chosenArticle['picture'] . "\">
-                                <p class=\"font-weight-bold\">" . $chosenArticle['name'] . "</p>
-                                <p>" . $chosenArticle['description'] . "</p>
-                                <p>" . $chosenArticle['price'] . " €</p>
-
-                                <form class=\"row\" action=\"validation.php\" method=\"post\">
-                                <input type=\"hidden\" name=\"modifiedArticleId\" value=\"" . $chosenArticle['id'] . "\">
-                                <input class=\"col-2 offset-3\" type=\"text\" name=\"newQuantity\" value=\"" . $chosenArticle['quantity'] . "\">
-                                <button type=\"submit\" class=\"col-5 offset-1 btn btn-light\">
-                                    Modifier quantité
-                                </button>
-                                </form>
-
-                                <form action=\"validation.php\" method=\"post\">
-                                    <input type=\"hidden\" name=\"deletedArticle\" value=\"" . $chosenArticle['id'] . "\">
-                                    <button type=\"submit\" class=\"btn btn-dark\">
-                                        <i class=\"fas fa-ban\"></i>
-                                    </button>
-                                </form>
-                              </div>";
-            }
+            showCartContent("validation.php");
             ?>
 
             <div class="row text-dark justify-content-end font-weight-bold bg-light p-4">
@@ -111,6 +92,10 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
                 ?>
             </div>
 
+            <h5 class="p-5">Adresse de livraison</h5>
+            <?php displayAddress();?>
+
+
             <?php if (!empty($_SESSION['cart'])) {
                 echo "<div class=\"row justify-content-center text-dark font-weight-bold bg-light p-4\">
                     <button type=\"button\" class=\"btn btn-dark\" data-toggle=\"modal\" data-target=\"#confirmation\">Confirmer l'achat</button>
@@ -127,9 +112,6 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <?php
-                        $showConfirmation = false;
-                        emptyCart($showConfirmation); ?>
                         <div class="modal-body">
                             <h4 class="text-success mt-3">Votre commande a été validée.</h4><br>
                             <br>
@@ -141,9 +123,10 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
                             Merci pour votre confiance.
                         </div>
                         <div class="modal-footer">
-                            <a href="index.php">
-                                <button class="btn btn-secondary">Retour à l'accueil</button>
-                            </a>
+                            <form action="index.php" method="post">
+                                <input type="hidden" name="orderValidated" value="true">
+                                <input type="submit" class="btn btn-secondary" value="Retour à l'accueil">
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -157,6 +140,9 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
     ?>
 
 </body>
+<script>
+
+</script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>

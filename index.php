@@ -1,12 +1,33 @@
 <?php
 session_start();
+
 include('functions.php');
 
-if (!isset ($_SESSION['cart'])){
+if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = array();
-} 
+}
 
-$articles = getArticles();
+if (isset($_POST['orderValidated'])) {
+    saveOrder(calculateTotalPrice());
+    emptyCart(false);
+}
+
+if (isset($_POST['userCreated'])) {
+    createUser();
+}
+
+if (isset($_POST['userConnection'])) {
+    if (!isset($_SESSION['id'])) {
+        logIn();
+    } else {
+        echo "<script>alert(\"Vous êtes déjà connecté !\")</script>";
+    }
+}
+
+if(isset($_POST['logout'])){
+    logOut();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +58,7 @@ $articles = getArticles();
         <div class="container p-5">
             <div class="row text-center justify-content-center">
                 <?php
-                     showArticles();
+                showArticles();
                 ?>
             </div>
         </div>
