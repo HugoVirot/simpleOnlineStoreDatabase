@@ -3,31 +3,11 @@ session_start();
 
 include('functions.php');
 
-if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = array();
-}
+if (isset($_POST['articleToDisplay'])) {
 
-if (isset($_POST['orderValidated'])) {
-    saveOrder(calculateTotalPrice());
-    emptyCart(false);
+    $articleToDisplayId = $_POST['articleToDisplay'];
+    $articleToDisplay = getArticleFromId($articleToDisplayId);
 }
-
-if (isset($_POST['userCreated'])) {
-    createUser();
-}
-
-if (isset($_POST['userConnection'])) {
-    if (!isset($_SESSION['id'])) {
-        logIn();
-    } else {
-        echo "<script>alert(\"Vous êtes déjà connecté !\")</script>";
-    }
-}
-
-if(isset($_POST['logout'])){
-    logOut();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -37,31 +17,32 @@ if(isset($_POST['logout'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arinfo, montres intemporelles</title>
+    <title>Gammes - Arinfo, montres intemporelles <?php?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 </head>
 
 <body>
-
-    <?php
-    include('./header.php');
-    ?>
+    <header>
+        <?php
+        include('header.php');
+        ?>
+    </header>
 
     <main>
-
         <div class="container-fluid pb-3">
             <div class="row text-center">
-                <img id="watchPhoto" src="images/watchdark.jpg" style="width: 100vw">
+                <img id="watchPhoto" src="images/watchesrange.jpg" style="width: 100vw">
             </div>
         </div>
 
-        <div class="container p-5">
-            <div class="row text-center justify-content-center">
-                <?php
-                showArticles(getArticles());
-                ?>
-            </div>
+        <div class="container p-4 text-center">
+            <h3 class="">Nos Gammes</h3>
         </div>
+
+        <?php 
+        showRanges(getRanges());
+        ?>
 
     </main>
 

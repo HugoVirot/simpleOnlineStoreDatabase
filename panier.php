@@ -22,10 +22,6 @@ if (isset($_POST['modifiedArticleId'])) {
 if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
     emptyCart($showConfirmation = true);
 }
-
-// var_dump($_POST);
-
-// var_dump($_SESSION['cart']);
 ?>
 
 <!DOCTYPE html>
@@ -50,7 +46,7 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
     <main>
         <div class="container-fluid pb-5">
             <div class="row text-center">
-                <img id="watchPhoto" src="images/watchdark.jpg" style="width: 100vw">
+                <img id="watchPhoto" src="images/watch.jpg" style="width: 100vw">
             </div>
         </div>
 
@@ -70,17 +66,9 @@ if (isset($_POST['emptyCart']) && $_POST['emptyCart'] == true) {
                 ?>
             </div>
 
-            <?php if ($_SESSION['cart']) {
-                echo   "<form action=\"panier.php\" method=\"post\" class=\"row justify-content-center text-dark font-weight-bold p-3\">
-                             <input type=\"hidden\" name=\"emptyCart\" value=\"true\">
-                            <button type=\"submit\" class=\"btn btn-danger\">Vider le panier</button>
-                        </form>
-                        <a href=\"validation.php\">
-                            <div class=\"row justify-content-center p-4\">
-                                <button type=\"button\" class=\"btn btn-dark\">Valider la commande</button>
-                            </div>
-                        </a>";
-            } ?>
+            <?php
+            showButtons();
+            ?>
 
         </div>
 

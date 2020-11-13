@@ -2,12 +2,6 @@
 session_start();
 
 include('functions.php');
-
-if (isset($_POST['articleToDisplay'])) {
-
-    $articleToDisplayId = $_POST['articleToDisplay'];
-    $articleToDisplay = getArticleFromId($articleToDisplayId);
-}
 ?>
 
 <!DOCTYPE html>
@@ -17,7 +11,7 @@ if (isset($_POST['articleToDisplay'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arinfo, montres intemporelles - <?php?></title>
+    <title><?php echo $articleToDisplay['nom']?> - Arinfo, montres intemporelles<?php?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 </head>
@@ -30,37 +24,13 @@ if (isset($_POST['articleToDisplay'])) {
     </header>
 
     <main>
-        <div class="container p-1">
-            <div class="row justify-content-center">
-                <img src="images/<?php echo $articleToDisplay['image'] ?>">
-            </div>
-        </div>
-
-        <div class="container w-50 border border-dark bg-light mb-4">
-
-            <?php
-            echo "<div class=\"row pt-5 text-center font-weight-bold align-items-center bg-light p-3 justify-content-center\">
-                                <h2>" . $articleToDisplay['nom'] . "</h2>
-                        </div>
-                      <div class=\"row text-center font-italic align-items-center bg-light p-3 justify-content-center\">
-                                <h5>" . $articleToDisplay['description'] . "<h5>
-                      </div>
-                      <div class=\"row text-center align-items-center bg-light p-3 ml-5 mr-5 justify-content-center\">
-                      <p>" . $articleToDisplay['description_detaillee'] . "<p>
-                     </div>
-                      <div class=\"row text-center font-weight-light align-items-center bg-light p-3 justify-content-center\">    
-                                <h4>" . $articleToDisplay['prix'] . " €</h4>
-                      </div>
-                      <div class=\"row pb-5 text-center align-items-center bg-light p-3 justify-content-center\"> 
-                             <form action=\"panier.php\" method=\"post\">
-                                <input type=\"hidden\" name=\"chosenArticle\" value=\"" . $articleToDisplay['id'] . "\">
-                                <input class=\"btn btn-dark mt-2\" type=\"submit\" value=\"Ajouter au panier\">
-                             </form>
-                      </div>";
-            ?>
-
-        </div>
-
+        <?php
+        if (isset($_POST['articleToDisplay'])) {
+            $articleToDisplayId = $_POST['articleToDisplay'];
+            $articleToDisplay = getArticleFromId($articleToDisplayId);
+            showArticleDetails($articleToDisplay);
+        }
+        ?>
     </main>
 
     <?php

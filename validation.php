@@ -61,7 +61,7 @@ if (isset($_POST['addressChanged'])){
             showCartContent("validation.php");
             ?>
 
-            <div class="row text-dark justify-content-end font-weight-bold bg-light p-4">
+            <div class="row text-dark justify-content-center font-weight-bold bg-light p-4">
                 <?php
                 $cartTotal = getCartTotal();
                 if ($_SESSION['cart']) {
@@ -72,7 +72,7 @@ if (isset($_POST['addressChanged'])){
 
             </div>
 
-            <div class="row text-dark justify-content-end font-weight-bold bg-light p-4">
+            <div class="row text-dark justify-content-center font-weight-bold bg-light p-4">
                 <?php
                 if ($_SESSION['cart']) {
                     $shippingFees = calculateShippingFees();
@@ -82,7 +82,7 @@ if (isset($_POST['addressChanged'])){
                 ?>
             </div>
 
-            <div class="row text-dark justify-content-end font-weight-bold bg-light p-4">
+            <div class="row text-dark justify-content-center font-weight-bold bg-light p-4">
                 <?php
                 if ($_SESSION['cart']) {
                     $totalPrice = calculateTotalPrice();

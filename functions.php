@@ -16,7 +16,7 @@ function getConnection()
 
 // **************************************************** ARTICLES ***********************************************************
 
-// ****************** récupérer la liste des articles OK**********************
+// ****************** récupérer la liste des articles **********************
 
 function getArticles()
 {
@@ -26,7 +26,20 @@ function getArticles()
 }
 
 
-// ****************** récupérer un article à partir de son id OK**********************
+// ****************** récupérer la liste des articles par gamme **********************
+
+function getArticlesByRange($rangeId)
+{
+    $db = getConnection();
+    $query = $db->prepare('SELECT * FROM Articles WHERE id_gamme = :id_gamme');
+    $query->execute(array(
+        'id_gamme' => $rangeId
+    ));
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+// ****************** récupérer un article à partir de son id **********************
 
 function getArticleFromId($id)
 {
@@ -40,9 +53,8 @@ function getArticleFromId($id)
 
 // ****************** afficher l'ensemble des articles OK**********************
 
-function showArticles()
+function showArticles($articles)
 {
-    $articles = getArticles();
     foreach ($articles as $article) {
         echo "<div class=\"card col-md-5 col-lg-3 p-3 m-3\" style=\"width: 18rem;\">
                 <img class=\"card-img-top\" src=\"images/" . $article['image'] . "\" alt=\"Card image cap\">
@@ -64,22 +76,73 @@ function showArticles()
 }
 
 
-// function getClients()
-// {
-//     $db = getConnection();
-//     $query = $db->query('SELECT * FROM Clients');
-//     $resultat = $query->fetchAll();
-//     return $resultat;
-// }
+// ****************** afficher le détail d'un article sur la page produit **********************
+
+function showArticleDetails($articleToDisplay)
+{
+    echo "<div class=\"container p-3\">
+            <div class=\"row justify-content-center\">
+                <img src=\"images/" . $articleToDisplay['image'] . "\">
+            </div>
+          </div>
+
+          <div class=\"container w-50 border border-dark bg-light mb-3\">
+            <div class=\"row pt-5 text-center font-weight-bold align-items-center bg-light p-2 justify-content-center\">
+                <h2>" . $articleToDisplay['nom'] . "</h2>
+            </div>
+            <div class=\"row text-center font-italic align-items-center bg-light p-3 justify-content-center\">
+                <h5>" . $articleToDisplay['description'] . "<h5>
+            </div>
+            <div class=\"row text-center align-items-center bg-light p-3 ml-5 mr-5 justify-content-center\">
+                <p>" . $articleToDisplay['description_detaillee'] . "<p>
+            </div>
+            <div class=\"row text-center font-weight-light align-items-center bg-light p-3 justify-content-center\">    
+                <h4>" . $articleToDisplay['prix'] . " €</h4>
+            </div>
+            <div class=\"row pb-5 text-center align-items-center bg-light p-2 justify-content-center\"> 
+                <form action=\"panier.php\" method=\"post\">
+                    <input type=\"hidden\" name=\"chosenArticle\" value=\"" . $articleToDisplay['id'] . "\">
+                    <input class=\"btn btn-dark mt-2\" type=\"submit\" value=\"Ajouter au panier\">
+                </form>
+            </div>
+          </div>";
+}
 
 
-// function getAdresses()
-// {
-//     $db = getConnection();
-//     $query = $db->query('SELECT * FROM Adresses');
-//     $resultat = $query->fetchAll();
-//     return $resultat;
-// }
+
+// **************************************************** GAMMES ***********************************************************
+
+// ****************** récupérer les gammes en bdd **********************
+
+function getRanges()
+{
+    $db = getConnection();
+    $query = $db->query('SELECT * FROM gammes');
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+// ****************** afficher les gammes **********************
+
+function showRanges($ranges)
+{
+    foreach ($ranges as $range) {
+        echo "<div class=\"container w-75 border border-dark bg-light\">
+                <div class=\"row p-3 justify-content-center\"><h4>" . $range['nom'] . "</h4></div>
+              </div>";
+
+        $rangeArticles = getArticlesByRange(intval($range['id']));
+
+        echo "<div class=\"container p-5\">
+                <div class=\"row text-center justify-content-center\">";
+
+        showArticles($rangeArticles);
+
+        echo "</div>
+            </div>";
+    }
+}
+
 
 
 // **************************************************** PANIER ***********************************************************
@@ -168,6 +231,24 @@ function showCartContent($pageName)
                             </button>
                         </form>
                       </div>";
+    }
+}
+
+
+// ************ afficher les boutons "vider panier" et "valider la commande"  ***********
+
+function showButtons()
+{
+    if ($_SESSION['cart']) {
+        echo   "<form action=\"panier.php\" method=\"post\" class=\"row justify-content-center text-dark font-weight-bold p-2\">
+                 <input type=\"hidden\" name=\"emptyCart\" value=\"true\">
+                <button type=\"submit\" class=\"btn btn-danger\">Vider le panier</button>
+            </form>
+            <a href=\"validation.php\">
+                <div class=\"row justify-content-center p-2\">
+                    <button type=\"button\" class=\"btn btn-dark\">Valider la commande</button>
+                </div>
+            </a>";
     }
 }
 
@@ -430,5 +511,30 @@ function updateAddress()
         'id' => $_POST['addressId']
     ));
 
-    echo '<script>alert(\'Adresse validée !\')</script>';
+    echo '<script>alert(\'Nouvelle adresse validée !\')</script>';
+}
+
+
+
+// **************************************************** COMPTE CLIENT ***********************************************************
+
+// ***************** mettre à jour les informations  ************************
+
+function updateUser()
+{
+    $db = getConnection();
+
+    $query = $db->prepare('UPDATE clients SET prenom = :prenom, nom = :nom, email = :email WHERE id = :id');
+    $query->execute(array(
+        'prenom' =>  $_POST['firstName'],
+        'nom' => $_POST['lastName'],
+        'email' =>  $_POST['email'],
+        'id' => $_POST['clientId']
+    ));
+
+    $_SESSION['prenom'] = $_POST['firstName'];
+    $_SESSION['nom'] = $_POST['lastName'];
+    $_SESSION['email'] = $_POST['email'];
+
+    echo '<script>alert(\'Changements validés !\')</script>';
 }
