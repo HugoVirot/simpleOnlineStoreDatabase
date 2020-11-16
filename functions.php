@@ -338,11 +338,10 @@ function saveOrder($totalPrice)
 {
     $db = getConnection();
 
-    $query = $db->prepare('INSERT INTO commandes (id_client, id_adresse, numero, date_commande, prix) VALUES(:id_client, :id_adresse, :numero, :date_commande, :prix)');
+    $query = $db->prepare('INSERT INTO commandes (id_client, numero, date_commande, prix) VALUES(:id_client, :numero, :date_commande, :prix)');
 
     $query->execute(array(
         'id_client' => $_SESSION['id'],
-        'id_adresse' => $_SESSION['adresse']['id'],
         'numero' => rand(1000000, 9999999),
         'date_commande' => date("d-m-Y"),
         'prix' => $totalPrice,
@@ -537,4 +536,50 @@ function updateUser()
     $_SESSION['email'] = $_POST['email'];
 
     echo '<script>alert(\'Changements validés !\')</script>';
+}
+
+
+
+// ***************** récupérer la liste des commandes  ************************
+
+function getOrders()
+{
+
+    $db = getConnection();
+
+    $query = $db->prepare('SELECT * FROM commandes WHERE id_client = :id_client');
+    $query->execute(array(
+        'id_client' => $_SESSION['id']
+    ));
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+// ***************** afficher la liste des commandes  ************************
+
+function displayOrders()
+{
+    $orders = getOrders();
+    echo "<table class=\"table\">
+    <thead>
+      <tr>
+        <th scope=\"col\"></th>
+        <th scope=\"col\">Numéro</th>
+        <th scope=\"col\">Date</th>
+        <th scope=\"col\">Montant</th>
+      </tr>
+    </thead>
+    <tbody>";
+
+    foreach ($orders as $order) {
+        echo "<tr>
+                <th scope=\"row\"></th>
+                <td>" . $order["numero"] . "</td>
+                <td>" . $order["date_commande"] . "</td>
+                <td>" . $order["prix"] . " €</td>
+            </tr>";
+    }
+
+    echo "</tbody>
+    </table>";
 }

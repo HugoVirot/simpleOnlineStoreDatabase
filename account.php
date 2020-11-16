@@ -44,78 +44,33 @@ if (isset($_POST['addressModified'])) {
             </div>
         </div>
 
-        <div class="container mt-3 text-center">
+        <div class="container mt-3 text-center mb-5">
             <h3>Mon compte</h3>
         </div>
 
-        <div class="container p-5">
-            <div class="row text-center justify-content-center">
-                <div class="col-md-6">
-                    <h5>Modifier mes infos</h3>
-                        <div class="container border border-dark bg-light mb-4 p-5">
-                            <form action="account.php" method="post">
-                                <input type="hidden" name="userModified" value="true">
-                                <input type="hidden" name="clientId" value="<?php echo $_SESSION['id'] ?>">
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="inputFirstName">Prénom</label>
-                                        <input name="firstName" type="text" class="form-control" id="inputFirstName" value="<?php echo $_SESSION['prenom'] ?>" required>
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="inputName">Nom</label>
-                                        <input name="lastName" type="text" class="form-control" id="inputName" value="<?php echo $_SESSION['nom'] ?>" required>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="inputEmail">Email</label>
-                                        <input name="email" type="email" class="form-control" id="inputEmail" value="<?php echo $_SESSION['email'] ?>" required>
-                                    </div>
-                                    <!-- <div class="form-group col-md-6">
-                                        <label for="inputPassword">Mot de passe</label>
-                                        <input name="password" type="password" class="form-control" id="inputPassword" placeholder="motdepasse" required>
-                                    </div> -->
-                                </div>
-                                <div class="row justify-content-center mt-2">
-                                    <button type="submit" class="btn btn-dark">Valider</button>
-                                </div>
-                            </form>
-                        </div>
+        <div class="container mt-3 text-center">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="changeInformations.php">
+                        <button class="btn btn-dark">Modifier mes infos</button>
+                    </a>
                 </div>
-                <?php $address = getUserAdress(); ?>
-                <div class="col-md-6">
-                    <h5>Modifier mon adresse</h3>
-                        <div class="container border border-dark bg-light mb-2 p-5">
-                            <form action="account.php" method="post">
-                                <input type="hidden" name="addressModified" value="true">
-                                <input type="hidden" name="addressId" value="<?php echo $address['id'] ?>">
-                                <div class="form-group">
-                                    <label for="inputAddress">Adresse</label>
-                                    <input name="address" type="text" class="form-control" id="inputAddress" value="<?php echo $address['adresse'] ?>" required>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="inputZip">Code Postal</label>
-                                        <input name="zipCode" type="text" class="form-control" id="inputZip" value="<?php echo $address['code_postal'] ?>" required>
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="inputCity">Ville</label>
-                                        <input name="city" type="text" class="form-control" id="inputCity" value="<?php echo $address['ville'] ?>" required>
-                                    </div>
-                                </div>
-                                <div class="row justify-content-center mt-2">
-                                    <button type="submit" class="btn btn-dark">Valider</button>
-                                </div>
-                        </div>
+
+                <div class="col-md-4">
+                    <a href="changeAddress.php">
+                        <button class="btn btn-dark">Modifier mon adresse</button>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a href="orders.php">
+                        <button class="btn btn-dark">Voir mes commandes</button>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="container text-center">
-            <a href="orders.php">
-                <button class="btn btn-dark">Voir mes commandes</button>
-            </a>
-        </div>
     </main>
 
     <?php
