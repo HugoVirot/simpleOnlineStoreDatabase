@@ -11,7 +11,7 @@ include('functions.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon compte - Arinfo, montres intemporelles <?php?></title>
+    <title>Détails commande <?php echo $_POST['orderNumber'] ?> - Arinfo, montres intemporelles <?php?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 </head>
@@ -33,12 +33,16 @@ include('functions.php');
         </div>
 
         <div class="container mt-3 text-center">
-            <h3>Mes commandes</h3>
+            <h3>Détails commande <?php echo $_POST['orderNumber'] ?></h3>
         </div>
 
         <div class="container-fluid p-5">
+
+            <div class="row text-center mb-5 justify-content-center">
+                <h5>Date : <b><?php echo $_POST['orderDate'] ?></b> - montant total : <b><?php echo $_POST['orderTotal'] ?> €</b></h4>
+            </div>
             <div class="row text-center justify-content-center">
-                <?php displayOrders(getOrders()); ?>
+                <?php displayOrderArticles(getOrderArticles($_POST['orderId'])); ?>
             </div>
         </div>
 

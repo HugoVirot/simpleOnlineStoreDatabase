@@ -46,8 +46,7 @@ function getArticleFromId($id)
     $db = getConnection();
     $result = $db->prepare('SELECT * FROM Articles WHERE id = ?');
     $result->execute(array($id));
-    $article = $result->fetch();
-    return $article;
+    return $result->fetch();
 }
 
 
@@ -62,16 +61,19 @@ function showArticles($articles)
                     <h5 class=\"card-title font-weight-bold\">" . $article['nom'] . "</h5>
                     <p class=\"card-text font-italic\">" . $article['description'] . "</p>
                     <p class=\"card-text font-weight-light\">" . $article['prix'] . " €</p>
+                    " . displayStock($article['stock']) . "
                     <form action=\"product.php\" method=\"post\">
                         <input type=\"hidden\" name=\"articleToDisplay\" value=\"" . $article['id'] . "\">
                         <input class=\"btn btn-light\" type=\"submit\" value=\"Détails produit\">
-                    </form>
-                    <form action=\"panier.php\" method=\"post\">
+                    </form>";
+        if ($article['stock'] > 0) {
+            echo "<form action=\"panier.php\" method=\"post\">
                         <input type=\"hidden\" name=\"chosenArticle\" value=\"" . $article['id'] . "\">
                         <input class=\"btn btn-dark mt-2\" type=\"submit\" value=\"Ajouter au panier\">
-                    </form>
-                </div>
-            </div>";
+                  </form>";
+        }
+        echo "</div>
+              </div>";
     }
 }
 
@@ -99,12 +101,17 @@ function showArticleDetails($articleToDisplay)
             <div class=\"row text-center font-weight-light align-items-center bg-light p-3 justify-content-center\">    
                 <h4>" . $articleToDisplay['prix'] . " €</h4>
             </div>
-            <div class=\"row pb-5 text-center align-items-center bg-light p-2 justify-content-center\"> 
-                <form action=\"panier.php\" method=\"post\">
-                    <input type=\"hidden\" name=\"chosenArticle\" value=\"" . $articleToDisplay['id'] . "\">
-                    <input class=\"btn btn-dark mt-2\" type=\"submit\" value=\"Ajouter au panier\">
-                </form>
+            <div class=\"container w-75 text-center align-items-center bg-light p-3 justify-content-center\">    
+            " . displayStock($articleToDisplay['stock']) . "
             </div>
+            <div class=\"row pb-5 text-center align-items-center bg-light p-2 justify-content-center\">";
+    if ($articleToDisplay['stock'] > 0) {
+        echo "<form action=\"panier.php\" method=\"post\">
+                            <input type=\"hidden\" name=\"chosenArticle\" value=\"" . $articleToDisplay['id'] . "\">
+                            <input class=\"btn btn-dark mt-2\" type=\"submit\" value=\"Ajouter au panier\">
+                      </form>";
+    }
+    echo "</div>
           </div>";
 }
 
@@ -331,6 +338,38 @@ function emptyCart($showConfirmation)
 
 
 
+// **************************************************** STOCKS ***********************************************************
+
+// *************************************** afficher le stock d'un article ***************************************
+
+function displayStock($stock)
+{
+    if ($stock >= 10) {
+        return "<p class=\"w-75 card-text m-auto rounded p-1 text-white bg-success\">En stock</p>";
+    } else if ($stock > 0) {
+        return "<p class=\"w-75 card-text m-auto rounded p-1 bg-warning\">Plus que <b>" . $stock . "</b> en stock</p>";
+    } else {
+        return "<p class=\"w-75 card-text m-auto rounded p-1 text-light bg-danger\">Article épuisé</p>";
+    }
+}
+
+
+// *************************************** enlever du stock le nombre d'articles achetés ************************
+
+function decreaseStock($articlesQuantity, $id)
+{
+    $db = getConnection();
+
+    $query = $db->prepare('UPDATE articles SET stock = stock - :articleQuantity WHERE id = :id');
+
+    $query->execute(array(
+        'articleQuantity' => $articlesQuantity,
+        'id' => $id
+    ));
+}
+
+
+
 // ********************************** SAUVEGARDE COMMANDE *********************************************
 
 
@@ -356,6 +395,8 @@ function saveOrder($totalPrice)
             'id_article' => $article['id'],
             'quantity' => $article['quantity']
         ));
+
+        decreaseStock($article['quantity'], $article['id']);
     }
 }
 
@@ -548,6 +589,7 @@ function getOrders()
     $db = getConnection();
 
     $query = $db->prepare('SELECT * FROM commandes WHERE id_client = :id_client');
+    // $query = $db->prepare('SELECT * FROM commandes c INNER JOIN commande_articles ca ON (ca.id_commande = c.id) WHERE c.id_client = :id_client');
     $query->execute(array(
         'id_client' => $_SESSION['id']
     ));
@@ -555,31 +597,98 @@ function getOrders()
 }
 
 
+// ***************** récupérer les articles de chaque commande  ************************
+
+function getOrderArticles($orderId)
+{
+
+    $db = getConnection();
+
+    $query = $db->prepare('SELECT * FROM commande_articles ca INNER JOIN articles a ON a.id = ca.id_article WHERE id_commande = :id_commande');
+    // $query = $db->prepare('SELECT * FROM commandes c INNER JOIN commande_articles ca ON (ca.id_commande = c.id) WHERE c.id_client = :id_client');
+    $query->execute(array(
+        'id_commande' => $orderId
+    ));
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+
 // ***************** afficher la liste des commandes  ************************
 
 function displayOrders()
 {
     $orders = getOrders();
+
     echo "<table class=\"table\">
     <thead>
       <tr>
-        <th scope=\"col\"></th>
         <th scope=\"col\">Numéro</th>
         <th scope=\"col\">Date</th>
         <th scope=\"col\">Montant</th>
+        <th scope=\"col\">Détail</th>
       </tr>
     </thead>
     <tbody>";
 
     foreach ($orders as $order) {
+
         echo "<tr>
-                <th scope=\"row\"></th>
                 <td>" . $order["numero"] . "</td>
                 <td>" . $order["date_commande"] . "</td>
                 <td>" . $order["prix"] . " €</td>
-            </tr>";
+                <td>
+                    <form action=\"orderDetails.php\" method=\"post\">
+                        <input type=\"hidden\" name=\"orderId\" value=\"" . $order["id"] . "\">
+                        <input type=\"hidden\" name=\"orderNumber\" value=\"" . $order["numero"] . "\">
+                        <input type=\"hidden\" name=\"orderTotal\" value=\"" . $order["prix"] . "\">
+                        <input type=\"hidden\" name=\"orderDate\" value=\"" . $order["date_commande"] . "\">
+                        <button type=\"submit\"  class=\"btn btn-dark\">Détails</button>
+                    </form>
+                </td>
+              </tr>";
     }
+    echo "</tr>
+        </td>
+        </tr>";
+
 
     echo "</tbody>
+    </table>";
+}
+
+// ***************** afficher la liste des commandes  ************************
+
+function displayOrderArticles($orderArticles)
+{
+    echo "<table class=\"table\">
+    <thead>
+      <tr>
+        <th scope=\"col\">Article</th>
+        <th scope=\"col\">Prix</th>
+        <th scope=\"col\">Quantité</th>
+        <th scope=\"col\">Montant</th>
+      </tr>
+    </thead>
+    <tbody>";
+    $articlesQuantity = 0;
+    foreach ($orderArticles as $article) {
+
+        $articlesQuantity += $article['quantite'];
+
+        echo "<tr>
+                <td>" . $article["nom"] . "</td>
+                <td>" . $article["prix"] . " € </td>
+                <td>" . $article["quantite"] . "</td>
+                <td>" . $article["prix"] * $article["quantite"] . " €</td>
+              </tr>";
+    }
+    echo "<tr>
+    <td>Frais de port</td>
+    <td>" .  number_format(3, 2, ',', 0)  . " €</td>
+    <td> $articlesQuantity </td>
+    <td>" .  number_format(3 * $articlesQuantity, 2, ',', 0)  . " €</td>
+    </tr>
+    </tbody>
     </table>";
 }
