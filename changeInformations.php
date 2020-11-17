@@ -56,15 +56,11 @@ if (isset($_POST['userModified'])) {
                                         <input name="lastName" type="text" class="form-control" id="inputName" value="<?php echo $_SESSION['nom'] ?>" required>
                                     </div>
                                 </div>
-                                <div class="form-row">
+                                <div class="form-row justify-content-center">
                                     <div class="form-group col-md-6">
                                         <label for="inputEmail">Email</label>
                                         <input name="email" type="email" class="form-control" id="inputEmail" value="<?php echo $_SESSION['email'] ?>" required>
                                     </div>
-                                    <!-- <div class="form-group col-md-6">
-                                        <label for="inputPassword">Mot de passe</label>
-                                        <input name="password" type="password" class="form-control" id="inputPassword" placeholder="motdepasse" required>
-                                    </div> -->
                                 </div>
                                 <div class="row justify-content-center mt-2">
                                     <button type="submit" class="btn btn-dark">Valider</button>
@@ -78,13 +74,19 @@ if (isset($_POST['userModified'])) {
         <div class="container w-50 text-center">
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <a href="changeAddress.php">
                         <button class="btn btn-dark">Modifier mon adresse</button>
                     </a>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <a href="changePassword.php">
+                        <button class="btn btn-dark">Modifier mon mot de passe</button>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
                     <a href="orders.php">
                         <button class="btn btn-dark">Voir mes commandes</button>
                     </a>

@@ -558,7 +558,7 @@ function updateAddress()
 
 // **************************************************** COMPTE CLIENT ***********************************************************
 
-// ***************** mettre à jour les informations  ************************
+// ************************ mettre à jour les informations  *****************************
 
 function updateUser()
 {
@@ -579,6 +579,48 @@ function updateUser()
     echo '<script>alert(\'Changements validés !\')</script>';
 }
 
+
+// ************************ récupérer le mot de passe en bdd*****************************
+
+function getUserPassword(){
+
+    $db = getConnection();
+    $query = $db->prepare('SELECT mot_de_passe FROM clients WHERE id = ?');
+    $query->execute(array($_SESSION['id']));
+    return $query->fetch(PDO::FETCH_ASSOC);
+}
+
+
+// ************************ modifier le mot de passe  *****************************
+
+function updatePassword(){
+
+    $oldPasswordDatabase = getUserPassword();
+    $oldPasswordDatabase = $oldPasswordDatabase['mot_de_passe'];
+    
+    $isPasswordCorrect = password_verify($_POST['oldPassword'], $oldPasswordDatabase);
+
+    if ($isPasswordCorrect) {
+
+        $newPassword = $_POST['newPassword'];
+
+        $db = getConnection();
+        $query = $db->prepare('UPDATE clients SET mot_de_passe = :newPassword WHERE id = :id');
+        $query->execute(array(
+            'newPassword' => password_hash($newPassword, PASSWORD_DEFAULT),
+            'id' => $_SESSION['id']
+        ));
+
+        echo"<script>alert(\"Mot de passe modifié avec succès\")</script>";
+
+    } else {
+        echo"<script>alert(\"Erreur : l'ancien mot de passe saisi est incorrect\")</script>";
+    };
+}
+
+
+
+// **************************************************** COMMANDES ***********************************************************
 
 
 // ***************** récupérer la liste des commandes  ************************
