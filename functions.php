@@ -250,12 +250,15 @@ function showButtons()
         echo   "<form action=\"panier.php\" method=\"post\" class=\"row justify-content-center text-dark font-weight-bold p-2\">
                  <input type=\"hidden\" name=\"emptyCart\" value=\"true\">
                 <button type=\"submit\" class=\"btn btn-danger\">Vider le panier</button>
-            </form>
+            </form>";
+        if (isset($_SESSION['id'])) {
+            echo "
             <a href=\"validation.php\">
                 <div class=\"row justify-content-center p-2\">
                     <button type=\"button\" class=\"btn btn-dark\">Valider la commande</button>
                 </div>
             </a>";
+        }
     }
 }
 
@@ -402,7 +405,77 @@ function saveOrder($totalPrice)
 
 
 
-// **************************************************** UTILISATEURS ***********************************************************
+// ******************************************* UTILISATEURS (INSCRIPTION ET CONNEXION) ****************************************************
+
+// ***************** vérifier la présence de champs vides ************************
+
+function checkEmptyFields()
+{
+
+    $emptyFieldsFound = false;
+
+    foreach ($_POST as $field) {
+        if (empty($field)) {
+            $emptyFieldsFound = true;
+        }
+    }
+
+    return $emptyFieldsFound;
+}
+
+
+// ***************** vérifier la longueur des champs ************************
+
+function checkInputsLenght()
+{
+    $inputsLenghtOk = true;
+
+    if (strlen($_POST['firstName']) > 25 || strlen($_POST['firstName']) < 3)
+    {
+        $inputsLenghtOk = false;
+    }
+
+    if (strlen($_POST['lastName']) > 25 || strlen($_POST['lastName']) < 3) {
+        $inputsLenghtOk = false;
+    }
+
+    if (strlen($_POST['email']) > 25 || strlen($_POST['email']) < 5) {
+        $inputsLenghtOk = false;
+    }
+
+    if (strlen($_POST['address']) > 40 || strlen($_POST['address']) < 5) {
+        $inputsLenghtOk = false;
+    }
+    
+    if (strlen($_POST['zipCode']) !== 5)
+    {
+        $inputsLenghtOk = false;
+    }
+    
+    if (strlen($_POST['city']) > 25 || strlen($_POST['city']) < 3) {
+        $inputsLenghtOk = false;
+    }
+
+    return $inputsLenghtOk;
+}
+
+
+// ***************** vérifier le mot de passe ************************
+
+function checkPassword()
+{
+    $isPasswordSecured = false;
+
+    // minimum 8 caractères et maximum 15, minimum 1 minuscule, 1 majuscule, 1 nombre et 1 caractère spécial
+    $regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$^";
+
+    if (preg_match($regex, $_POST['password'])) {
+        $isPasswordSecured = true;
+    }
+
+    return $isPasswordSecured;
+}
+
 
 // ***************** créer un utilisateur ************************
 
@@ -410,27 +483,42 @@ function createUser()
 {
     $db = getConnection();
 
-    $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    if (checkEmptyFields()) {
+        echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : un ou plusieurs champs vides !</div>";
+    } else {
 
-    $query = $db->prepare('INSERT INTO clients (nom, prenom, email, mot_de_passe) VALUES(:nom, :prenom, :email, :mot_de_passe)');
-    $query->execute(array(
-        'nom' =>  $_POST['lastName'],
-        'prenom' => $_POST['firstName'],
-        'email' =>  $_POST['email'],
-        'mot_de_passe' => $hashedPassword,
-    ));
+        if (!checkInputsLenght()) {
+            echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : longueur incorrecte d'un ou plusieurs champs !</div>";
+        } else {
 
-    $id = $db->lastInsertId();
+            if (!checkPassword()) {
+                echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : sécurité du mot de passe insuffisante !</div>";
+            } else {
+                echo '<script>alert(\longueur champs ok!\')</script>';
+                $hashedPassword = password_hash(strip_tags($_POST['password']), PASSWORD_DEFAULT);
 
-    $query = $db->prepare('INSERT INTO adresses (id_client, adresse, code_postal, ville) VALUES(:id_client, :adresse, :code_postal, :ville)');
-    $query->execute(array(
-        'id_client' => $id,
-        'adresse' => $_POST['address'],
-        'code_postal' =>  $_POST['zipCode'],
-        'ville' =>  $_POST['city'],
-    ));
+                $query = $db->prepare('INSERT INTO clients (nom, prenom, email, mot_de_passe) VALUES(:nom, :prenom, :email, :mot_de_passe)');
+                $query->execute(array(
+                    'nom' =>  strip_tags($_POST['lastName']),
+                    'prenom' => strip_tags($_POST['firstName']),
+                    'email' =>  strip_tags($_POST['email']),
+                    'mot_de_passe' => $hashedPassword,
+                ));
 
-    echo '<script>alert(\'Le compte a bien été créé !\')</script>';
+                $id = $db->lastInsertId();
+
+                $query = $db->prepare('INSERT INTO adresses (id_client, adresse, code_postal, ville) VALUES(:id_client, :adresse, :code_postal, :ville)');
+                $query->execute(array(
+                    'id_client' => $id,
+                    'adresse' => strip_tags($_POST['address']),
+                    'code_postal' =>  strip_tags($_POST['zipCode']),
+                    'ville' =>  strip_tags($_POST['city']),
+                ));
+
+                echo '<script>alert(\'Le compte a bien été créé !\')</script>';
+            }
+        }
+    }
 }
 
 
@@ -440,13 +528,14 @@ function logIn()
 {
     $db = getConnection();
 
-    $userEmail = $_POST['email'];
+    $userEmail = strip_tags($_POST['email']);
 
     $query = $db->prepare('SELECT * FROM clients WHERE email = :email');
     $query->execute(array(
         'email' => $userEmail
     ));
     $result = $query->fetch(PDO::FETCH_ASSOC);
+
     if (!$result) {
         echo '<script>alert(\'E-mail ou mot de passe incorrect !\')</script>';
     } else {
@@ -454,7 +543,6 @@ function logIn()
         $isPasswordCorrect = password_verify($_POST['password'], $result['mot_de_passe']);
 
         if ($isPasswordCorrect) {
-            // session_start();
             $_SESSION['id'] = $result['id'];
             $_SESSION['nom'] = $result['nom'];
             $_SESSION['prenom'] = $result['prenom'];
@@ -489,10 +577,8 @@ function getUserAdress()
 {
     $db = getConnection();
 
-    $query = $db->prepare('SELECT * FROM adresses WHERE id_client = :id_client');
-    $query->execute(array(
-        'id_client' => $_SESSION['id']
-    ));
+    $query = $db->prepare('SELECT * FROM adresses WHERE id_client = ?');
+    $query->execute([$_SESSION['id']]);
     return $query->fetch(PDO::FETCH_ASSOC);
 }
 
@@ -582,7 +668,8 @@ function updateUser()
 
 // ************************ récupérer le mot de passe en bdd*****************************
 
-function getUserPassword(){
+function getUserPassword()
+{
 
     $db = getConnection();
     $query = $db->prepare('SELECT mot_de_passe FROM clients WHERE id = ?');
@@ -593,11 +680,12 @@ function getUserPassword(){
 
 // ************************ modifier le mot de passe  *****************************
 
-function updatePassword(){
+function updatePassword()
+{
 
     $oldPasswordDatabase = getUserPassword();
     $oldPasswordDatabase = $oldPasswordDatabase['mot_de_passe'];
-    
+
     $isPasswordCorrect = password_verify($_POST['oldPassword'], $oldPasswordDatabase);
 
     if ($isPasswordCorrect) {
@@ -611,10 +699,9 @@ function updatePassword(){
             'id' => $_SESSION['id']
         ));
 
-        echo"<script>alert(\"Mot de passe modifié avec succès\")</script>";
-
+        echo "<script>alert(\"Mot de passe modifié avec succès\")</script>";
     } else {
-        echo"<script>alert(\"Erreur : l'ancien mot de passe saisi est incorrect\")</script>";
+        echo "<script>alert(\"Erreur : l'ancien mot de passe saisi est incorrect\")</script>";
     };
 }
 

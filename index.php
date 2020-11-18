@@ -12,10 +12,6 @@ if (isset($_POST['orderValidated'])) {
     emptyCart(false);
 }
 
-if (isset($_POST['userCreated'])) {
-    createUser();
-}
-
 if (isset($_POST['userConnection'])) {
     if (!isset($_SESSION['id'])) {
         logIn();
@@ -24,7 +20,7 @@ if (isset($_POST['userConnection'])) {
     }
 }
 
-if(isset($_POST['logout'])){
+if (isset($_POST['logout'])) {
     logOut();
 }
 
@@ -55,11 +51,47 @@ if(isset($_POST['logout'])){
             </div>
         </div>
 
+        <div class="container-fluid bg-light text-dark pb-5 pt-5">
+            <div class="row text-center align-items-center">
+                <div class="col-md-4 offset-md-2 align-items-">
+                    <h4 class="mb-3">Nouveauté</h3>
+                        <h1 class="mb-3">Grey Jewel</h1>
+                        <h5 class="mb-4">en exclusivité chez Arinfo</h3>
+                            <form action="product.php" method="post">
+                                <input type="hidden" name="articleToDisplay" value="6">
+                                <input class="btn btn-dark" type="submit" value="Découvrir">
+                            </form>
+                </div>
+                <div class="col-md-4">
+                    <img id="watchPhoto" src="images/watch6.jpg" style="width: 25vw; border-radius: 80px; border : 2px solid grey">
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid bg-dark text-light pb-5 pt-5">
+            <div class="row text-center align-items-center">
+                <div class="col-md-4 offset-md-2">
+                    <img id="watchPhoto" src="images/watch2.jpg" style="width: 25vw; border-radius: 80px">
+                </div>
+                <div class="col-md-4">
+                    <h4 class="mb-3">Valeur sûre</h3>
+                        <h1 class="mb-3">Classic Leather</h1>
+                        <h5 class="mb-4">une référence incontestée</h3>
+                            <form action="product.php" method="post">
+                                <input type="hidden" name="articleToDisplay" value="2">
+                                <input class="btn btn-light" type="submit" value="Découvrir">
+                            </form>
+                </div>
+            </div>
+        </div>
+
         <div class="container p-5">
             <div class="row text-center justify-content-center">
-                <?php
-                showArticles(getArticles());
-                ?>
+                <a href="ranges.php">
+                    <button class="btn btn-dark">
+                        Découvrir toutes nos gammes
+                    </button>
+                </a>
             </div>
         </div>
 

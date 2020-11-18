@@ -35,7 +35,7 @@ include('functions.php');
         </div>
 
         <div class="container w-50 border border-dark bg-light mb-4 p-5">
-            <form action="index.php" method="post">
+            <form action="connection.php" method="post">
                 <input type="hidden" name="userCreated" value="true">
                 <div class="form-row">
                     <div class="form-group col-md-6">

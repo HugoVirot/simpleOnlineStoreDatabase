@@ -1,6 +1,10 @@
 <?php
 session_start();
 include('functions.php');
+
+if (isset($_POST['userCreated'])) {
+    createUser();
+}
 ?>
 
 <!DOCTYPE html>
