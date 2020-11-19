@@ -40,14 +40,14 @@
                                         </li>";
                         } else {
                             echo "<li class=\"nav-item\">
-                                        <a class=\"nav-link\" href=\"account.php\">Mon compte</a>
-                                      </li>
-                                      <li class=\"nav-item\">
-                                        <form action=\"index.php\" method=\"post\" class=\"nav-link\">
-                                            <input type=\"hidden\" name=\"logout\">
-                                            <input class=\"bg-light\" style=\"border: none\" type=\"submit\" value=\"Déconnexion\">
-                                        </form>
-                                      </li>";
+                                    <a class=\"nav-link\" href=\"account.php\">Mon compte</a>
+                                  </li>
+                                  <li class=\"nav-item\">
+                                    <form action=\"index.php\" method=\"post\" class=\"nav-link\">
+                                        <input type=\"hidden\" name=\"logout\">
+                                        <input class=\"bg-light\" style=\"border: none\" type=\"submit\" value=\"Déconnexion\">
+                                    </form>
+                                  </li>";
                         } ?>
                     </ul>
                 </div>

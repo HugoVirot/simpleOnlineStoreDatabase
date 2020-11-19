@@ -35,7 +35,7 @@ if (isset($_POST['userModified'])) {
             </div>
         </div>
 
-        <div class="container mt-3 text-center">
+        <div class="container mt-4 text-center">
             <h3>Modifier mes informations</h3>
         </div>
 

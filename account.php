@@ -16,6 +16,11 @@ if (isset($_POST['userModified'])) {
 if (isset($_POST['addressModified'])) {
     updateAddress();
 }
+
+if (isset($_POST['passwordModified'])) {
+    updatePassword();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -48,22 +53,32 @@ if (isset($_POST['addressModified'])) {
             <h3>Mon compte</h3>
         </div>
 
-        <div class="container mt-3 text-center">
+        <div class="container mt-3 p-5 text-center">
 
-            <div class="row">
-                <div class="col-md-4">
+            <div class="row p-5">
+                <div class="col-md-3">
+                    <i class="fas fa-user fa-3x mb-3"></i>
                     <a href="changeInformations.php">
-                        <button class="btn btn-dark">Modifier mes infos</button>
+                        <button class="btn btn-dark">Modifier mes informations </button>
                     </a>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <i class="fas fa-key fa-3x mb-3"></i>
+                    <a href="changePassword.php">
+                        <button class="btn btn-dark">Modifier mon mot de passe</button>
+                    </a>
+                </div>
+
+                <div class="col-md-3">
+                    <i class="far fa-user fa-3x mb-3"></i>
                     <a href="changeAddress.php">
                         <button class="btn btn-dark">Modifier mon adresse</button>
                     </a>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <i class="far fa-user fa-3x mb-3"></i>
                     <a href="orders.php">
                         <button class="btn btn-dark">Voir mes commandes</button>
                     </a>

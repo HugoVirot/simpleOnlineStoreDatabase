@@ -87,7 +87,6 @@ function showArticleDetails($articleToDisplay)
                 <img src=\"images/" . $articleToDisplay['image'] . "\">
             </div>
           </div>
-
           <div class=\"container w-50 border border-dark bg-light mb-3\">
             <div class=\"row pt-5 text-center font-weight-bold align-items-center bg-light p-2 justify-content-center\">
                 <h2>" . $articleToDisplay['nom'] . "</h2>
@@ -194,11 +193,11 @@ function removeToCart($articleId)
 function updateQuantity()
 {
 
-    $newQuantity = checkTypedQuantity();
+    $modifiedArticleId = $_POST['modifiedArticleId'];
+
+    $newQuantity = checkTypedQuantity($modifiedArticleId);
 
     if (is_numeric($newQuantity)) {
-
-        $modifiedArticleId = $_POST['modifiedArticleId'];
 
         for ($i = 0; $i < count($_SESSION['cart']); $i++) {
 
@@ -265,7 +264,7 @@ function showButtons()
 
 // ************vérifie que la quantité entrée est un nombre entre 1 et 10  ***********
 
-function checkTypedQuantity()
+function checkTypedQuantity($articleId)
 {
 
     if (isset($_POST['newQuantity'])) {
@@ -274,7 +273,13 @@ function checkTypedQuantity()
         $typedQuantity = null;
     }
 
-    if (is_numeric($typedQuantity) && $typedQuantity >= 1 && $typedQuantity <= 9) {
+    $db = getConnection();
+    $query = $db->prepare('SELECT stock FROM articles where id = ?');
+    $query->execute([$articleId]);
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $quantityInStock = $result['stock'];
+
+    if (is_numeric($typedQuantity) && $typedQuantity <= $quantityInStock && $typedQuantity >= 1 && $typedQuantity <= 10) {
         return $typedQuantity;
     } else {
         echo "<script> alert(\"Quantité saisie incorrecte !\");</script>";
@@ -357,24 +362,32 @@ function displayStock($stock)
 }
 
 
-// *************************************** enlever du stock le nombre d'articles achetés ************************
+// ******************************** enlever du stock le nombre d'articles achetés ********************************
 
-function decreaseStock($articlesQuantity, $id)
+function decreaseStock($articleQuantity, $id)
 {
     $db = getConnection();
 
-    $query = $db->prepare('UPDATE articles SET stock = stock - :articleQuantity WHERE id = :id');
+    $query = $db->prepare('SELECT stock FROM articles WHERE id = ?');
+    $query->execute([$id]);
+    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $stock = intval($result['stock']);
 
+    $newStock = $stock - $articleQuantity;
+
+    if ($newStock < 0) {
+        $newStock = 0;
+    }
+
+    $query = $db->prepare('UPDATE articles SET stock = :newStock WHERE id = :id');
     $query->execute(array(
-        'articleQuantity' => $articlesQuantity,
+        'newStock' => $newStock,
         'id' => $id
     ));
 }
 
 
-
 // ********************************** SAUVEGARDE COMMANDE *********************************************
-
 
 function saveOrder($totalPrice)
 {
@@ -430,8 +443,7 @@ function checkInputsLenght()
 {
     $inputsLenghtOk = true;
 
-    if (strlen($_POST['firstName']) > 25 || strlen($_POST['firstName']) < 3)
-    {
+    if (strlen($_POST['firstName']) > 25 || strlen($_POST['firstName']) < 3) {
         $inputsLenghtOk = false;
     }
 
@@ -446,12 +458,11 @@ function checkInputsLenght()
     if (strlen($_POST['address']) > 40 || strlen($_POST['address']) < 5) {
         $inputsLenghtOk = false;
     }
-    
-    if (strlen($_POST['zipCode']) !== 5)
-    {
+
+    if (strlen($_POST['zipCode']) !== 5) {
         $inputsLenghtOk = false;
     }
-    
+
     if (strlen($_POST['city']) > 25 || strlen($_POST['city']) < 3) {
         $inputsLenghtOk = false;
     }
@@ -466,8 +477,9 @@ function checkPassword()
 {
     $isPasswordSecured = false;
 
-    // minimum 8 caractères et maximum 15, minimum 1 minuscule, 1 majuscule, 1 nombre et 1 caractère spécial
-    $regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$^";
+    // minimum 8 caractères et maximum 15, minimum 1 lettre, 1 chiffre et 1 caractère spécial
+
+    $regex = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@$!%*?/&])(?=\S+$).{8,15}$^";
 
     if (preg_match($regex, $_POST['password'])) {
         $isPasswordSecured = true;
@@ -530,10 +542,8 @@ function logIn()
 
     $userEmail = strip_tags($_POST['email']);
 
-    $query = $db->prepare('SELECT * FROM clients WHERE email = :email');
-    $query->execute(array(
-        'email' => $userEmail
-    ));
+    $query = $db->prepare('SELECT * FROM clients WHERE email = ?');
+    $query->execute([$userEmail]);
     $result = $query->fetch(PDO::FETCH_ASSOC);
 
     if (!$result) {
@@ -650,19 +660,29 @@ function updateUser()
 {
     $db = getConnection();
 
-    $query = $db->prepare('UPDATE clients SET prenom = :prenom, nom = :nom, email = :email WHERE id = :id');
-    $query->execute(array(
-        'prenom' =>  $_POST['firstName'],
-        'nom' => $_POST['lastName'],
-        'email' =>  $_POST['email'],
-        'id' => $_POST['clientId']
-    ));
+    if (!checkEmptyFields()) {
 
-    $_SESSION['prenom'] = $_POST['firstName'];
-    $_SESSION['nom'] = $_POST['lastName'];
-    $_SESSION['email'] = $_POST['email'];
+        $firstName = strip_tags($_POST['firstName']);
+        $lastName = strip_tags($_POST['lastName']);
+        $email = strip_tags($_POST['email']);
+        $id = strip_tags($_POST['clientId']);
 
-    echo '<script>alert(\'Changements validés !\')</script>';
+        $query = $db->prepare('UPDATE clients SET prenom = :prenom, nom = :nom, email = :email WHERE id = :id');
+        $query->execute(array(
+            'prenom' =>  $firstName,
+            'nom' => $lastName,
+            'email' => $email,
+            'id' => $id
+        ));
+
+        $_SESSION['prenom'] = $firstName;
+        $_SESSION['nom'] = $lastName;
+        $_SESSION['email'] = $email;
+
+        echo '<script>alert(\'Changements validés !\')</script>';
+    } else {
+        echo '<script>alert(\'Attention : un ou plusieurs champs vides !\')</script>';
+    }
 }
 
 
@@ -717,7 +737,7 @@ function getOrders()
 
     $db = getConnection();
 
-    $query = $db->prepare('SELECT * FROM commandes WHERE id_client = :id_client');
+    $query = $db->prepare('SELECT * FROM commandes WHERE id_client = :id_client ORDER BY date_commande DESC');
     // $query = $db->prepare('SELECT * FROM commandes c INNER JOIN commande_articles ca ON (ca.id_commande = c.id) WHERE c.id_client = :id_client');
     $query->execute(array(
         'id_client' => $_SESSION['id']

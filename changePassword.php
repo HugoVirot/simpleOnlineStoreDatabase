@@ -3,10 +3,6 @@ session_start();
 
 include('functions.php');
 
-if (isset($_POST['passwordModified'])) {
-    updatePassword();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -40,7 +36,7 @@ if (isset($_POST['passwordModified'])) {
         </div>
 
         <div class="container w-50 p-5 border border-dark bg-light mb-5 p-5">
-            <form action="changePassword.php" method="post">
+            <form action="account.php" method="post">
                 <input type="hidden" name="passwordModified" value="true">
                 <input type="hidden" name="clientId" value="<?php echo $_SESSION['id'] ?>">
                 <div class="form-row text-center justify-content-center">

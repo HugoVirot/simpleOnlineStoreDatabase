@@ -72,13 +72,19 @@ if (isset($_POST['addressModified'])) {
         <div class="container w-50 text-center">
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <a href="changeInformations.php">
                         <button class="btn btn-dark">Modifier mes infos</button>
                     </a>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <a href="changePassword.php">
+                        <button class="btn btn-dark">Modifier mon mot de passe</button>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
                     <a href="orders.php">
                         <button class="btn btn-dark">Voir mes commandes</button>
                     </a>
