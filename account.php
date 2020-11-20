@@ -71,19 +71,20 @@ if (isset($_POST['passwordModified'])) {
                 </div>
 
                 <div class="col-md-3">
-                    <i class="far fa-user fa-3x mb-3"></i>
+                    <i class="fas fa-home fa-3x mb-3"></i>
                     <a href="changeAddress.php">
                         <button class="btn btn-dark">Modifier mon adresse</button>
                     </a>
                 </div>
 
                 <div class="col-md-3">
-                    <i class="far fa-user fa-3x mb-3"></i>
+                    <i class="fas fa-clipboard-list fa-3x mb-3"></i>
                     <a href="orders.php">
                         <button class="btn btn-dark">Voir mes commandes</button>
                     </a>
                 </div>
             </div>
+            
         </div>
 
     </main>

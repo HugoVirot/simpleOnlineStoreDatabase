@@ -34,6 +34,7 @@ if (isset($_POST['logout'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arinfo, montres intemporelles</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 </head>
 
@@ -51,7 +52,7 @@ if (isset($_POST['logout'])) {
             </div>
         </div>
 
-        <div class="container-fluid bg-light text-dark pb-5 pt-5">
+        <div class="container-fluid text-dark pb-5 pt-5">
             <div class="row text-center align-items-center">
                 <div class="col-md-4 offset-md-2 align-items-">
                     <h4 class="mb-3">Nouveauté</h3>
@@ -81,6 +82,23 @@ if (isset($_POST['logout'])) {
                                 <input type="hidden" name="articleToDisplay" value="2">
                                 <input class="btn btn-light" type="submit" value="Découvrir">
                             </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid text-dark pb-5 pt-5">
+            <div class="row text-center align-items-center">
+                <div class="col-md-4 offset-md-2 align-items-">
+                    <h4 class="mb-3">Toujours à l'affiche</h3>
+                        <h1 class="mb-3">Vintage Aviator</h1>
+                        <h5 class="mb-4">à ne pas manquer !</h3>
+                            <form action="product.php" method="post">
+                                <input type="hidden" name="articleToDisplay" value="5">
+                                <input class="btn btn-dark" type="submit" value="Découvrir">
+                            </form>
+                </div>
+                <div class="col-md-4">
+                    <img id="watchPhoto" src="images/watch5.jpg" style="width: 25vw; border-radius: 80px; border : 2px solid grey">
                 </div>
             </div>
         </div>

@@ -27,6 +27,10 @@ if (isset($_POST['addressChanged'])){
     updateAddress();
 }
 
+if (isset($_POST['userModified'])) {
+    updateUser();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -92,12 +96,15 @@ if (isset($_POST['addressChanged'])){
                 ?>
             </div>
 
-            <h5 class="p-5">Adresse de livraison</h5>
-            <?php displayAddress();?>
+            <h5 class="pt-5">Coordonnées</h5>
+            <?php displayInformations("validation.php");?>
+
+            <h5 class="pb-5">Adresse de livraison</h5>
+            <?php displayAddress("validation.php");?>
 
 
             <?php if (!empty($_SESSION['cart'])) {
-                echo "<div class=\"row justify-content-center text-dark font-weight-bold bg-light p-4\">
+                echo "<div class=\"row justify-content-center p-4\">
                     <button type=\"button\" class=\"btn btn-dark\" data-toggle=\"modal\" data-target=\"#confirmation\">Confirmer l'achat</button>
                 </div>";
             } ?>

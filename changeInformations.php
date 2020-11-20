@@ -39,37 +39,7 @@ if (isset($_POST['userModified'])) {
             <h3>Modifier mes informations</h3>
         </div>
 
-        <div class="container p-5">
-            <div class="row text-center justify-content-center">
-                <div class="col-md-6">
-                        <div class="container border border-dark bg-light mb-4 p-5">
-                            <form action="changeInformations.php" method="post">
-                                <input type="hidden" name="userModified" value="true">
-                                <input type="hidden" name="clientId" value="<?php echo $_SESSION['id'] ?>">
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="inputFirstName">Prénom</label>
-                                        <input name="firstName" type="text" class="form-control" id="inputFirstName" value="<?php echo $_SESSION['prenom'] ?>" required>
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="inputName">Nom</label>
-                                        <input name="lastName" type="text" class="form-control" id="inputName" value="<?php echo $_SESSION['nom'] ?>" required>
-                                    </div>
-                                </div>
-                                <div class="form-row justify-content-center">
-                                    <div class="form-group col-md-6">
-                                        <label for="inputEmail">Email</label>
-                                        <input name="email" type="email" class="form-control" id="inputEmail" value="<?php echo $_SESSION['email'] ?>" required>
-                                    </div>
-                                </div>
-                                <div class="row justify-content-center mt-2">
-                                    <button type="submit" class="btn btn-dark">Valider</button>
-                                </div>
-                            </form>
-                        </div>
-                </div>
-            </div>
-        </div>
+        <?php displayInformations("changeInformations.php");?>
 
         <div class="container w-50 text-center">
 

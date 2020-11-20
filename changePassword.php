@@ -49,6 +49,7 @@ include('functions.php');
                     <div class="form-group col-md-6">
                         <label for="inputPassword">Nouveau mot de passe</label>
                         <input name="newPassword" type="password" class="form-control" id="inputPassword" placeholder="nouveaumotdepasse" required>
+                        <small id="emailHelp" class="form-text text-muted">Entre 8 et 15 caractères, minimum 1 lettre, 1 chiffre et 1 caractère spécial</small>
                     </div>
                 </div>
                 <div class="row justify-content-center mt-2">

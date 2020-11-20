@@ -38,43 +38,14 @@ if (isset($_POST['addressModified'])) {
             <h3>Modifier mon adresse</h3>
         </div>
 
-        <div class="container p-5">
-            <div class="row text-center justify-content-center">
-                <?php $address = getUserAdress(); ?>
-                <div class="col-md-6">
-                    <div class="container border border-dark bg-light mb-2 p-5">
-                        <form action="changeAddress.php" method="post">
-                            <input type="hidden" name="addressModified" value="true">
-                            <input type="hidden" name="addressId" value="<?php echo $address['id'] ?>">
-                            <div class="form-group">
-                                <label for="inputAddress">Adresse</label>
-                                <input name="address" type="text" class="form-control" id="inputAddress" value="<?php echo $address['adresse'] ?>" required>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="inputZip">Code Postal</label>
-                                    <input name="zipCode" type="text" class="form-control" id="inputZip" value="<?php echo $address['code_postal'] ?>" required>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="inputCity">Ville</label>
-                                    <input name="city" type="text" class="form-control" id="inputCity" value="<?php echo $address['ville'] ?>" required>
-                                </div>
-                            </div>
-                            <div class="row justify-content-center mt-2">
-                                <button type="submit" class="btn btn-dark">Valider</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php displayAddress("changeAddress.php");?>
 
-        <div class="container w-50 text-center">
+        <div class="container mt-3 text-center">
 
             <div class="row">
                 <div class="col-md-4">
                     <a href="changeInformations.php">
-                        <button class="btn btn-dark">Modifier mes infos</button>
+                        <button class="btn btn-dark">Modifier mes informations </button>
                     </a>
                 </div>
 
@@ -90,6 +61,7 @@ if (isset($_POST['addressModified'])) {
                     </a>
                 </div>
             </div>
+            
         </div>
 
     </main>

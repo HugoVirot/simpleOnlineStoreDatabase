@@ -94,10 +94,10 @@ function showArticleDetails($articleToDisplay)
             <div class=\"row text-center font-italic align-items-center bg-light p-3 justify-content-center\">
                 <h5>" . $articleToDisplay['description'] . "<h5>
             </div>
-            <div class=\"row text-center align-items-center bg-light p-3 ml-5 mr-5 justify-content-center\">
+            <div class=\"row text-center align-items-center bg-light p-2 ml-5 mr-5 justify-content-center\">
                 <p>" . $articleToDisplay['description_detaillee'] . "<p>
             </div>
-            <div class=\"row text-center font-weight-light align-items-center bg-light p-3 justify-content-center\">    
+            <div class=\"row text-center font-weight-light align-items-center bg-light p-1 justify-content-center\">    
                 <h4>" . $articleToDisplay['prix'] . " €</h4>
             </div>
             <div class=\"container w-75 text-center align-items-center bg-light p-3 justify-content-center\">    
@@ -473,15 +473,14 @@ function checkInputsLenght()
 
 // ***************** vérifier le mot de passe ************************
 
-function checkPassword()
+function checkPassword($password)
 {
     $isPasswordSecured = false;
 
     // minimum 8 caractères et maximum 15, minimum 1 lettre, 1 chiffre et 1 caractère spécial
-
     $regex = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@$!%*?/&])(?=\S+$).{8,15}$^";
 
-    if (preg_match($regex, $_POST['password'])) {
+    if (preg_match($regex, $password)) {
         $isPasswordSecured = true;
     }
 
@@ -503,7 +502,7 @@ function createUser()
             echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : longueur incorrecte d'un ou plusieurs champs !</div>";
         } else {
 
-            if (!checkPassword()) {
+            if (!checkPassword($_POST['password'])) {
                 echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : sécurité du mot de passe insuffisante !</div>";
             } else {
                 echo '<script>alert(\longueur champs ok!\')</script>';
@@ -603,12 +602,12 @@ function setSessionAddress()
 
 // ***************** afficher l'adresse par défaut lors de la commande  ************************
 
-function displayAddress()
+function displayAddress($currentPage)
 {
     $address = getUserAdress();
 
-    echo "<div class=\"container w-50 border border-dark bg-light mb-4 p-4\">
-            <form action=\"validation.php\" method=\"post\">
+    echo "<div class=\"container p-5 w-50 border border-dark bg-light mb-4 p-4\">
+            <form action=\"" . $currentPage . "\" method=\"post\">
                 <input type=\"hidden\" name=\"addressChanged\">
                 <input type=\"hidden\" name=\"addressId\" value=\"" . $address['id'] . "\">
                 <div class=\"form-group\">
@@ -652,7 +651,7 @@ function updateAddress()
 
 
 
-// **************************************************** COMPTE CLIENT ***********************************************************
+// **************************************************** COMPTE / INFOS CLIENT ***********************************************************
 
 // ************************ mettre à jour les informations  *****************************
 
@@ -686,6 +685,45 @@ function updateUser()
 }
 
 
+// ************************ afficher infos client *****************************
+
+function displayInformations($currentPage)
+{
+    echo "<div class=\"container p-5\">
+            <div class=\"row text-center justify-content-center\">
+                <div class=\"col-md-6\">
+                        <div class=\"container border border-dark bg-light mb-4 p-5\">
+                            <form action=\"" . $currentPage . "\" method=\"post\">
+                                <input type=\"hidden\" name=\"userModified\" value=\"true\">
+                                <input type=\"hidden\" name=\"clientId\" value=\"" . $_SESSION['id'] . "\">
+                                <div class=\"form-row\">
+                                    <div class=\"form-group col-md-6\">
+                                        <label for=\"inputFirstName\">Prénom</label>
+                                        <input name=\"firstName\" type=\"text\" class=\"form-control\" id=\"inputFirstName\" 
+                                        value=\"" . $_SESSION['prenom'] . "\" required>
+                                    </div>
+                                    <div class=\"form-group col-md-6\">
+                                        <label for=\"inputName\">Nom</label>
+                                        <input name=\"lastName\" type=\"text\" class=\"form-control\" id=\"inputName\" value=\"" . $_SESSION['nom'] . "\" required>
+                                    </div>
+                                </div>
+                                <div class=\"form-row justify-content-center\">
+                                    <div class=\"form-group col-md-6\">
+                                        <label for=\"inputEmail\">Email</label>
+                                        <input name=\"email\" type=\"email\" class=\"form-control\" id=\"inputEmail\" value=\"" . $_SESSION['email'] . "\" required>
+                                    </div>
+                                </div>
+                                <div class=\"row justify-content-center mt-2\">
+                                    <button type=\"submit\" class=\"btn btn-dark\">Valider les changements</button>
+                                </div>
+                            </form>
+                        </div>
+                </div>
+            </div>
+        </div>";
+}
+
+
 // ************************ récupérer le mot de passe en bdd*****************************
 
 function getUserPassword()
@@ -702,46 +740,49 @@ function getUserPassword()
 
 function updatePassword()
 {
+    if (!empty($_POST['oldPassword']) && !empty($_POST['password'])) {
 
-    $oldPasswordDatabase = getUserPassword();
-    $oldPasswordDatabase = $oldPasswordDatabase['mot_de_passe'];
+        if (checkPassword($_POST['password'])) {
 
-    $isPasswordCorrect = password_verify($_POST['oldPassword'], $oldPasswordDatabase);
+            $oldPasswordDatabase = getUserPassword();
+            $oldPasswordDatabase = $oldPasswordDatabase['mot_de_passe'];
 
-    if ($isPasswordCorrect) {
+            $isPasswordCorrect = password_verify(strip_tags($_POST['oldPassword']), $oldPasswordDatabase);
 
-        $newPassword = $_POST['newPassword'];
+            if ($isPasswordCorrect) {
 
-        $db = getConnection();
-        $query = $db->prepare('UPDATE clients SET mot_de_passe = :newPassword WHERE id = :id');
-        $query->execute(array(
-            'newPassword' => password_hash($newPassword, PASSWORD_DEFAULT),
-            'id' => $_SESSION['id']
-        ));
+                $newPassword = $_POST['newPassword'];
 
-        echo "<script>alert(\"Mot de passe modifié avec succès\")</script>";
+                $db = getConnection();
+                $query = $db->prepare('UPDATE clients SET mot_de_passe = :newPassword WHERE id = :id');
+                $query->execute(array(
+                    'newPassword' => password_hash($newPassword, PASSWORD_DEFAULT),
+                    'id' => $_SESSION['id']
+                ));
+
+                echo "<script>alert(\"Mot de passe modifié avec succès\")</script>";
+            } else {
+                echo "<script>alert(\"Erreur : l'ancien mot de passe saisi est incorrect\")</script>";
+            };
+        } else {
+            echo "<script>alert(\"Attention : sécurité du mot de passe insuffisante ! \")</script>";
+        }
     } else {
-        echo "<script>alert(\"Erreur : l'ancien mot de passe saisi est incorrect\")</script>";
-    };
+        echo "<script>alert(\"Attention : un ou plusieurs champs vides ! \")</script>";
+    }
 }
 
 
 
 // **************************************************** COMMANDES ***********************************************************
 
-
 // ***************** récupérer la liste des commandes  ************************
 
 function getOrders()
 {
-
     $db = getConnection();
-
-    $query = $db->prepare('SELECT * FROM commandes WHERE id_client = :id_client ORDER BY date_commande DESC');
-    // $query = $db->prepare('SELECT * FROM commandes c INNER JOIN commande_articles ca ON (ca.id_commande = c.id) WHERE c.id_client = :id_client');
-    $query->execute(array(
-        'id_client' => $_SESSION['id']
-    ));
+    $query = $db->prepare('SELECT * FROM commandes WHERE id_client = ? ORDER BY date_commande DESC');
+    $query->execute([$_SESSION['id']]);
     return $query->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -750,17 +791,11 @@ function getOrders()
 
 function getOrderArticles($orderId)
 {
-
     $db = getConnection();
-
-    $query = $db->prepare('SELECT * FROM commande_articles ca INNER JOIN articles a ON a.id = ca.id_article WHERE id_commande = :id_commande');
-    // $query = $db->prepare('SELECT * FROM commandes c INNER JOIN commande_articles ca ON (ca.id_commande = c.id) WHERE c.id_client = :id_client');
-    $query->execute(array(
-        'id_commande' => $orderId
-    ));
+    $query = $db->prepare('SELECT * FROM commande_articles ca INNER JOIN articles a ON a.id = ca.id_article WHERE id_commande = ?');
+    $query->execute([$orderId]);
     return $query->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 
 // ***************** afficher la liste des commandes  ************************
@@ -769,13 +804,13 @@ function displayOrders()
 {
     $orders = getOrders();
 
-    echo "<table class=\"table\">
-    <thead>
+    echo "<table class=\"table  table-striped\">
+    <thead class=\"thead-dark\">
       <tr>
         <th scope=\"col\">Numéro</th>
         <th scope=\"col\">Date</th>
         <th scope=\"col\">Montant</th>
-        <th scope=\"col\">Détail</th>
+        <th scope=\"col\">Détails</th>
       </tr>
     </thead>
     <tbody>";
@@ -805,6 +840,7 @@ function displayOrders()
     echo "</tbody>
     </table>";
 }
+
 
 // ***************** afficher la liste des commandes  ************************
 
