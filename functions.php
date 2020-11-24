@@ -268,7 +268,7 @@ function checkTypedQuantity($articleId)
 {
 
     if (isset($_POST['newQuantity'])) {
-        $typedQuantity = $_POST['newQuantity'];
+        $typedQuantity = strip_tags($_POST['newQuantity']);
     } else {
         $typedQuantity = null;
     }
@@ -387,6 +387,7 @@ function decreaseStock($articleQuantity, $id)
 }
 
 
+
 // ********************************** SAUVEGARDE COMMANDE *********************************************
 
 function saveOrder($totalPrice)
@@ -398,7 +399,7 @@ function saveOrder($totalPrice)
     $query->execute(array(
         'id_client' => $_SESSION['id'],
         'numero' => rand(1000000, 9999999),
-        'date_commande' => date("d-m-Y"),
+        'date_commande' => date("d-m-Y h:i:s"),
         'prix' => $totalPrice,
     ));
 
@@ -600,7 +601,7 @@ function setSessionAddress()
 }
 
 
-// ***************** afficher l'adresse par défaut lors de la commande  ************************
+// ***************** afficher formulaire modification adresse  ************************
 
 function displayAddress($currentPage)
 {
@@ -685,7 +686,7 @@ function updateUser()
 }
 
 
-// ************************ afficher infos client *****************************
+// ************************ afficher formulaire infos client *****************************
 
 function displayInformations($currentPage)
 {
@@ -740,9 +741,9 @@ function getUserPassword()
 
 function updatePassword()
 {
-    if (!empty($_POST['oldPassword']) && !empty($_POST['password'])) {
+    if (!checkEmptyFields()) {
 
-        if (checkPassword($_POST['password'])) {
+        if (checkPassword($_POST['newPassword'])) {
 
             $oldPasswordDatabase = getUserPassword();
             $oldPasswordDatabase = $oldPasswordDatabase['mot_de_passe'];
@@ -811,7 +812,7 @@ function displayOrders()
         <th scope=\"col\">Date</th>
         <th scope=\"col\">Montant</th>
         <th scope=\"col\">Détails</th>
-      </tr>
+    </tr>
     </thead>
     <tbody>";
 
@@ -836,7 +837,6 @@ function displayOrders()
         </td>
         </tr>";
 
-
     echo "</tbody>
     </table>";
 }
@@ -856,7 +856,9 @@ function displayOrderArticles($orderArticles)
       </tr>
     </thead>
     <tbody>";
+
     $articlesQuantity = 0;
+
     foreach ($orderArticles as $article) {
 
         $articlesQuantity += $article['quantite'];
@@ -868,6 +870,7 @@ function displayOrderArticles($orderArticles)
                 <td>" . $article["prix"] * $article["quantite"] . " €</td>
               </tr>";
     }
+
     echo "<tr>
     <td>Frais de port</td>
     <td>" .  number_format(3, 2, ',', 0)  . " €</td>

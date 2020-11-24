@@ -3,9 +3,11 @@ session_start();
 
 include('functions.php');
 
-if (isset($_POST['addressModified'])) {
+if (isset($_POST['addressChanged'])) {
     updateAddress();
 }
+
+var_dump($_POST);
 ?>
 
 <!DOCTYPE html>

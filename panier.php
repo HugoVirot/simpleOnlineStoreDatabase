@@ -3,6 +3,10 @@ session_start();
 
 include('functions.php');
 
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = array();
+}
+
 if (isset($_POST['chosenArticle'])) {
 
     $chosenArticleId = $_POST['chosenArticle'];
