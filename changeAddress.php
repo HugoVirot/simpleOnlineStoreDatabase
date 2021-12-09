@@ -6,8 +6,6 @@ include('functions.php');
 if (isset($_POST['addressChanged'])) {
     updateAddress();
 }
-
-var_dump($_POST);
 ?>
 
 <!DOCTYPE html>

@@ -5,7 +5,12 @@
 function getConnection()
 {
     try {
-        $db = new PDO('mysql:host=localhost;dbname=online_store;charset=utf8', 'hugo', 'H30flm645@', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+        $db = new PDO(
+            'mysql:host=localhost;dbname=online_store;charset=utf8',
+            'root',
+            '',
+            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC)
+        );
     } catch (Exception $e) {
         die('Erreur : ' . $e->getMessage());
     }
@@ -21,8 +26,8 @@ function getConnection()
 function getArticles()
 {
     $db = getConnection();
-    $query = $db->query('SELECT * FROM Articles');
-    return $query->fetchAll(PDO::FETCH_ASSOC);
+    $query = $db->query('SELECT * FROM articles');
+    return $query->fetchAll();
 }
 
 
@@ -35,7 +40,7 @@ function getArticlesByRange($rangeId)
     $query->execute(array(
         'id_gamme' => $rangeId
     ));
-    return $query->fetchAll(PDO::FETCH_ASSOC);
+    return $query->fetchAll();
 }
 
 
@@ -50,25 +55,25 @@ function getArticleFromId($id)
 }
 
 
-// ****************** afficher l'ensemble des articles OK**********************
+// ****************** afficher l'ensemble des articles **********************
 
 function showArticles($articles)
 {
     foreach ($articles as $article) {
         echo "<div class=\"card col-md-5 col-lg-3 p-3 m-3\" style=\"width: 18rem;\">
-                <img class=\"card-img-top\" src=\"images/" . $article['image'] . "\" alt=\"Card image cap\">
+                <img class=\"card-img-top\" src=\"images/" . htmlspecialchars($article['image']) . "\" alt=\"Card image cap\">
                 <div class=\"card-body\">
-                    <h5 class=\"card-title font-weight-bold\">" . $article['nom'] . "</h5>
-                    <p class=\"card-text font-italic\">" . $article['description'] . "</p>
-                    <p class=\"card-text font-weight-light\">" . $article['prix'] . " €</p>
-                    " . displayStock($article['stock']) . "
+                    <h5 class=\"card-title font-weight-bold\">" . htmlspecialchars($article['nom']) . "</h5>
+                    <p class=\"card-text font-italic\">" . htmlspecialchars($article['description']) . "</p>
+                    <p class=\"card-text font-weight-light\">" . htmlspecialchars($article['prix']) . " €</p>
+                    " . displayStock(htmlspecialchars($article['stock'])) . "
                     <form action=\"product.php\" method=\"post\">
-                        <input type=\"hidden\" name=\"articleToDisplay\" value=\"" . $article['id'] . "\">
+                        <input type=\"hidden\" name=\"articleToDisplay\" value=\"" . htmlspecialchars($article['id']) . "\">
                         <input class=\"btn btn-light\" type=\"submit\" value=\"Détails produit\">
                     </form>";
         if ($article['stock'] > 0) {
             echo "<form action=\"panier.php\" method=\"post\">
-                        <input type=\"hidden\" name=\"chosenArticle\" value=\"" . $article['id'] . "\">
+                        <input type=\"hidden\" name=\"chosenArticle\" value=\"" . htmlspecialchars($article['id']) . "\">
                         <input class=\"btn btn-dark mt-2\" type=\"submit\" value=\"Ajouter au panier\">
                   </form>";
         }
@@ -84,29 +89,29 @@ function showArticleDetails($articleToDisplay)
 {
     echo "<div class=\"container p-3\">
             <div class=\"row justify-content-center\">
-                <img src=\"images/" . $articleToDisplay['image'] . "\">
+                <img src=\"images/" . htmlspecialchars($articleToDisplay['image']) . "\">
             </div>
           </div>
           <div class=\"container w-50 border border-dark bg-light mb-3\">
             <div class=\"row pt-5 text-center font-weight-bold align-items-center bg-light p-2 justify-content-center\">
-                <h2>" . $articleToDisplay['nom'] . "</h2>
+                <h2>" . htmlspecialchars($articleToDisplay['nom']) . "</h2>
             </div>
             <div class=\"row text-center font-italic align-items-center bg-light p-3 justify-content-center\">
-                <h5>" . $articleToDisplay['description'] . "<h5>
+                <h5>" . htmlspecialchars($articleToDisplay['description']) . "<h5>
             </div>
             <div class=\"row text-center align-items-center bg-light p-2 ml-5 mr-5 justify-content-center\">
-                <p>" . $articleToDisplay['description_detaillee'] . "<p>
+                <p>" . htmlspecialchars($articleToDisplay['description_detaillee']) . "<p>
             </div>
             <div class=\"row text-center font-weight-light align-items-center bg-light p-1 justify-content-center\">    
-                <h4>" . $articleToDisplay['prix'] . " €</h4>
+                <h4>" . htmlspecialchars($articleToDisplay['prix']) . " €</h4>
             </div>
             <div class=\"container w-75 text-center align-items-center bg-light p-3 justify-content-center\">    
-            " . displayStock($articleToDisplay['stock']) . "
+            " . displayStock(htmlspecialchars($articleToDisplay['stock'])) . "
             </div>
             <div class=\"row pb-5 text-center align-items-center bg-light p-2 justify-content-center\">";
     if ($articleToDisplay['stock'] > 0) {
         echo "<form action=\"panier.php\" method=\"post\">
-                            <input type=\"hidden\" name=\"chosenArticle\" value=\"" . $articleToDisplay['id'] . "\">
+                            <input type=\"hidden\" name=\"chosenArticle\" value=\"" . htmlspecialchars($articleToDisplay['id']) . "\">
                             <input class=\"btn btn-dark mt-2\" type=\"submit\" value=\"Ajouter au panier\">
                       </form>";
     }
@@ -124,7 +129,7 @@ function getRanges()
 {
     $db = getConnection();
     $query = $db->query('SELECT * FROM gammes');
-    return $query->fetchAll(PDO::FETCH_ASSOC);
+    return $query->fetchAll();
 }
 
 
@@ -134,7 +139,7 @@ function showRanges($ranges)
 {
     foreach ($ranges as $range) {
         echo "<div class=\"container w-75 border border-dark bg-light\">
-                <div class=\"row p-3 justify-content-center\"><h4>" . $range['nom'] . "</h4></div>
+                <div class=\"row p-3 justify-content-center\"><h4>" . htmlspecialchars($range['nom']) . "</h4></div>
               </div>";
 
         $rangeArticles = getArticlesByRange(intval($range['id']));
@@ -215,15 +220,15 @@ function showCartContent($pageName)
 {
     foreach ($_SESSION['cart'] as $chosenArticle) {
         echo "<div class=\"row text-center text-light align-items-center bg-dark p-3 justify-content-around mb-1\">
-                        <img class=\"col-md-2\" style=\"width: 150px\" src=\"images/" . $chosenArticle['image'] . "\">
-                        <p class=\"font-weight-bold col-md-2\">" . $chosenArticle['nom'] . "</p>
-                        <p class=\"col-md-2\">" . $chosenArticle['description'] . "</p>
-                        <p class=\"col-md-2\">" . $chosenArticle['prix'] . " €</p>
+                        <img class=\"col-md-2\" style=\"width: 150px\" src=\"images/" . htmlspecialchars($chosenArticle['image']) . "\">
+                        <p class=\"font-weight-bold col-md-2\">" . htmlspecialchars($chosenArticle['nom']) . "</p>
+                        <p class=\"col-md-2\">" . htmlspecialchars($chosenArticle['description']) . "</p>
+                        <p class=\"col-md-2\">" . htmlspecialchars($chosenArticle['prix']) . " €</p>
 
                         <form class=\"col-lg-3\" action=\"" . $pageName . "\" method=\"post\">
                             <div class=\"row pt-2\">
-                            <input type=\"hidden\" name=\"modifiedArticleId\" value=\"" . $chosenArticle['id'] . "\">
-                            <input class=\"col-2 offset-2\" type=\"text\" name=\"newQuantity\" value=\"" . $chosenArticle['quantity'] . "\">
+                            <input type=\"hidden\" name=\"modifiedArticleId\" value=\"" . htmlspecialchars($chosenArticle['id']) . "\">
+                            <input class=\"col-2 offset-2\" type=\"text\" name=\"newQuantity\" value=\"" . htmlspecialchars($chosenArticle['quantity']) . "\">
                             <button type=\"submit\" class=\"col-5 offset-1 btn btn-light\">
                                 Modifier quantité
                             </button>
@@ -231,7 +236,7 @@ function showCartContent($pageName)
                         </form>
 
                         <form class=\"col-lg-1\" action=\"" . $pageName . "\" method=\"post\">
-                            <input type=\"hidden\" name=\"deletedArticle\" value=\"" . $chosenArticle['id'] . "\">
+                            <input type=\"hidden\" name=\"deletedArticle\" value=\"" . htmlspecialchars($chosenArticle['id']) . "\">
                             <button type=\"submit\" class=\"btn btn-dark\">
                                 <i class=\"fas fa-ban\"></i>
                             </button>
@@ -276,7 +281,7 @@ function checkTypedQuantity($articleId)
     $db = getConnection();
     $query = $db->prepare('SELECT stock FROM articles where id = ?');
     $query->execute([$articleId]);
-    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $result = $query->fetch();
     $quantityInStock = $result['stock'];
 
     if (is_numeric($typedQuantity) && $typedQuantity <= $quantityInStock && $typedQuantity >= 1 && $typedQuantity <= 10) {
@@ -362,18 +367,14 @@ function displayStock($stock)
 }
 
 
-// ******************************** enlever du stock le nombre d'articles achetés ********************************
+// ******************************** déduire des stocks le nombre d'articles achetés ********************************
 
-function decreaseStock($articleQuantity, $id)
+function decreaseStock($stock, $orderedQuantity, $id)
 {
     $db = getConnection();
 
-    $query = $db->prepare('SELECT stock FROM articles WHERE id = ?');
-    $query->execute([$id]);
-    $result = $query->fetch(PDO::FETCH_ASSOC);
-    $stock = intval($result['stock']);
-
-    $newStock = $stock - $articleQuantity;
+    $stock = intval($stock);
+    $newStock = $stock - $orderedQuantity;
 
     if ($newStock < 0) {
         $newStock = 0;
@@ -405,15 +406,17 @@ function saveOrder($totalPrice)
 
     $id = $db->lastInsertId();
 
+    $query = $db->prepare('INSERT INTO commande_articles (id_commande, id_article, quantite) VALUES(:id_commande, :id_article, :quantity)');
+
     foreach ($_SESSION['cart'] as $article) {
-        $query = $db->prepare('INSERT INTO commande_articles (id_commande, id_article, quantite) VALUES(:id_commande, :id_article, :quantity)');
+
         $query->execute(array(
             'id_commande' => $id,
             'id_article' => $article['id'],
             'quantity' => $article['quantity']
         ));
 
-        decreaseStock($article['quantity'], $article['id']);
+        decreaseStock($article['stock'], $article['quantity'], $article['id']);
     }
 }
 
@@ -503,7 +506,7 @@ function createUser()
             echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : longueur incorrecte d'un ou plusieurs champs !</div>";
         } else {
 
-            if (!checkPassword($_POST['password'])) {
+            if (!checkPassword(strip_tags($_POST['password']))) {
                 echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : sécurité du mot de passe insuffisante !</div>";
             } else {
                 echo '<script>alert(\longueur champs ok!\')</script>';
@@ -544,7 +547,7 @@ function logIn()
 
     $query = $db->prepare('SELECT * FROM clients WHERE email = ?');
     $query->execute([$userEmail]);
-    $result = $query->fetch(PDO::FETCH_ASSOC);
+    $result = $query->fetch();
 
     if (!$result) {
         echo '<script>alert(\'E-mail ou mot de passe incorrect !\')</script>';
@@ -589,7 +592,7 @@ function getUserAdress()
 
     $query = $db->prepare('SELECT * FROM adresses WHERE id_client = ?');
     $query->execute([$_SESSION['id']]);
-    return $query->fetch(PDO::FETCH_ASSOC);
+    return $query->fetch();
 }
 
 
@@ -610,19 +613,19 @@ function displayAddress($currentPage)
     echo "<div class=\"container p-5 w-50 border border-dark bg-light mb-4 p-4\">
             <form action=\"" . $currentPage . "\" method=\"post\">
                 <input type=\"hidden\" name=\"addressChanged\">
-                <input type=\"hidden\" name=\"addressId\" value=\"" . $address['id'] . "\">
+                <input type=\"hidden\" name=\"addressId\" value=\"" . htmlspecialchars($address['id']) . "\">
                 <div class=\"form-group\">
                     <label for=\"inputAddress\">Adresse</label>
-                    <input name=\"address\" type=\"text\" class=\"form-control\" id=\"inputAddress\" value=\"" . $address['adresse'] . "\" required>
+                    <input name=\"address\" type=\"text\" class=\"form-control\" id=\"inputAddress\" value=\"" . htmlspecialchars($address['adresse']) . "\" required>
                 </div>
                 <div class=\"form-row\">
                     <div class=\"form-group col-md-6\">
                         <label for=\"inputZip\">Code Postal</label>
-                        <input name=\"zipCode\" type=\"text\" class=\"form-control\" id=\"inputZip\"  value=\"" . $address['code_postal'] . "\" required>
+                        <input name=\"zipCode\" type=\"text\" class=\"form-control\" id=\"inputZip\"  value=\"" . htmlspecialchars($address['code_postal']) . "\" required>
                     </div>
                     <div class=\"form-group col-md-6\">
                         <label for=\"inputCity\">Ville</label>
-                        <input name=\"city\" type=\"text\" class=\"form-control\" id=\"inputCity\" value=\"" . $address['ville'] . "\" required>
+                        <input name=\"city\" type=\"text\" class=\"form-control\" id=\"inputCity\" value=\"" . htmlspecialchars($address['ville']) . "\" required>
                     </div>
                 </div>
                 <div class=\"row justify-content-center mt-2\">
@@ -641,10 +644,10 @@ function updateAddress()
 
     $query = $db->prepare('UPDATE adresses SET adresse = :adresse, code_postal = :code_postal, ville = :ville WHERE id = :id');
     $query->execute(array(
-        'adresse' =>  $_POST['address'],
-        'code_postal' => $_POST['zipCode'],
-        'ville' =>  $_POST['city'],
-        'id' => $_POST['addressId']
+        'adresse' =>  strip_tags($_POST['address']),
+        'code_postal' => strip_tags($_POST['zipCode']),
+        'ville' =>  strip_tags($_POST['city']),
+        'id' => strip_tags($_POST['addressId'])
     ));
 
     echo '<script>alert(\'Nouvelle adresse validée !\')</script>';
@@ -658,10 +661,9 @@ function updateAddress()
 
 function updateUser()
 {
-    $db = getConnection();
-
     if (!checkEmptyFields()) {
 
+        $db = getConnection();
         $firstName = strip_tags($_POST['firstName']);
         $lastName = strip_tags($_POST['lastName']);
         $email = strip_tags($_POST['email']);
@@ -701,17 +703,17 @@ function displayInformations($currentPage)
                                     <div class=\"form-group col-md-6\">
                                         <label for=\"inputFirstName\">Prénom</label>
                                         <input name=\"firstName\" type=\"text\" class=\"form-control\" id=\"inputFirstName\" 
-                                        value=\"" . $_SESSION['prenom'] . "\" required>
+                                        value=\"" . htmlspecialchars($_SESSION['prenom']) . "\" required>
                                     </div>
                                     <div class=\"form-group col-md-6\">
                                         <label for=\"inputName\">Nom</label>
-                                        <input name=\"lastName\" type=\"text\" class=\"form-control\" id=\"inputName\" value=\"" . $_SESSION['nom'] . "\" required>
+                                        <input name=\"lastName\" type=\"text\" class=\"form-control\" id=\"inputName\" value=\"" . htmlspecialchars($_SESSION['nom']) . "\" required>
                                     </div>
                                 </div>
                                 <div class=\"form-row justify-content-center\">
                                     <div class=\"form-group col-md-6\">
                                         <label for=\"inputEmail\">Email</label>
-                                        <input name=\"email\" type=\"email\" class=\"form-control\" id=\"inputEmail\" value=\"" . $_SESSION['email'] . "\" required>
+                                        <input name=\"email\" type=\"email\" class=\"form-control\" id=\"inputEmail\" value=\"" . htmlspecialchars($_SESSION['email']) . "\" required>
                                     </div>
                                 </div>
                                 <div class=\"row justify-content-center mt-2\">
@@ -733,7 +735,7 @@ function getUserPassword()
     $db = getConnection();
     $query = $db->prepare('SELECT mot_de_passe FROM clients WHERE id = ?');
     $query->execute(array($_SESSION['id']));
-    return $query->fetch(PDO::FETCH_ASSOC);
+    return $query->fetch();
 }
 
 
@@ -741,19 +743,24 @@ function getUserPassword()
 
 function updatePassword()
 {
-    if (!checkEmptyFields()) {
+    if (!checkEmptyFields()) {  // on vérifie d'abord si il n'y a pas de champs vides. Si oui, message d'erreur et fin de la fonction.
 
-        if (checkPassword($_POST['newPassword'])) {
+        $oldPasswordDatabase = getUserPassword();   // on récupère le mdp actuel en base
+        $oldPasswordDatabase = $oldPasswordDatabase['mot_de_passe'];
 
-            $oldPasswordDatabase = getUserPassword();
-            $oldPasswordDatabase = $oldPasswordDatabase['mot_de_passe'];
+        // on vérifie le mdp actuel saisi par rapport à l'actuel en base
+        $isPasswordCorrect = password_verify(strip_tags($_POST['oldPassword']), $oldPasswordDatabase);
 
-            $isPasswordCorrect = password_verify(strip_tags($_POST['oldPassword']), $oldPasswordDatabase);
+        // si mdp actuel saisi = mdp actuel en base, on passe à la suite. Sinon fin de la fonction et message d'erreur
+        if ($isPasswordCorrect) {
 
-            if ($isPasswordCorrect) {
+            // on nettoie le nouveau mdp choisi
+            $newPassword = strip_tags($_POST['newPassword']);
 
-                $newPassword = $_POST['newPassword'];
+            // on vérifie que le nouveau mdp choisi respecte la regex. Si pas bon => sortie et message d'erreur
+            if (checkPassword($newPassword)) {
 
+                //si nouveau mdp ok => on le sauvegarde en le hâchant avec password_hash()
                 $db = getConnection();
                 $query = $db->prepare('UPDATE clients SET mot_de_passe = :newPassword WHERE id = :id');
                 $query->execute(array(
@@ -763,10 +770,10 @@ function updatePassword()
 
                 echo "<script>alert(\"Mot de passe modifié avec succès\")</script>";
             } else {
-                echo "<script>alert(\"Erreur : l'ancien mot de passe saisi est incorrect\")</script>";
+                echo "<script>alert(\"Attention : sécurité du mot de passe insuffisante ! \")</script>";
             };
         } else {
-            echo "<script>alert(\"Attention : sécurité du mot de passe insuffisante ! \")</script>";
+            echo "<script>alert(\"Erreur : l'ancien mot de passe saisi est incorrect\")</script>";
         }
     } else {
         echo "<script>alert(\"Attention : un ou plusieurs champs vides ! \")</script>";
@@ -784,7 +791,7 @@ function getOrders()
     $db = getConnection();
     $query = $db->prepare('SELECT * FROM commandes WHERE id_client = ? ORDER BY date_commande DESC');
     $query->execute([$_SESSION['id']]);
-    return $query->fetchAll(PDO::FETCH_ASSOC);
+    return $query->fetchAll();
 }
 
 
@@ -795,7 +802,7 @@ function getOrderArticles($orderId)
     $db = getConnection();
     $query = $db->prepare('SELECT * FROM commande_articles ca INNER JOIN articles a ON a.id = ca.id_article WHERE id_commande = ?');
     $query->execute([$orderId]);
-    return $query->fetchAll(PDO::FETCH_ASSOC);
+    return $query->fetchAll();
 }
 
 
@@ -819,15 +826,15 @@ function displayOrders()
     foreach ($orders as $order) {
 
         echo "<tr>
-                <td>" . $order["numero"] . "</td>
-                <td>" . $order["date_commande"] . "</td>
-                <td>" . $order["prix"] . " €</td>
+                <td>" . htmlspecialchars($order["numero"]) . "</td>
+                <td>" . htmlspecialchars($order["date_commande"]) . "</td>
+                <td>" . htmlspecialchars($order["prix"]) . " €</td>
                 <td>
                     <form action=\"orderDetails.php\" method=\"post\">
-                        <input type=\"hidden\" name=\"orderId\" value=\"" . $order["id"] . "\">
-                        <input type=\"hidden\" name=\"orderNumber\" value=\"" . $order["numero"] . "\">
-                        <input type=\"hidden\" name=\"orderTotal\" value=\"" . $order["prix"] . "\">
-                        <input type=\"hidden\" name=\"orderDate\" value=\"" . $order["date_commande"] . "\">
+                        <input type=\"hidden\" name=\"orderId\" value=\"" . htmlspecialchars($order["id"]) . "\">
+                        <input type=\"hidden\" name=\"orderNumber\" value=\"" . htmlspecialchars($order["numero"]) . "\">
+                        <input type=\"hidden\" name=\"orderTotal\" value=\"" . htmlspecialchars($order["prix"]) . "\">
+                        <input type=\"hidden\" name=\"orderDate\" value=\"" . htmlspecialchars($order["date_commande"]) . "\">
                         <button type=\"submit\"  class=\"btn btn-dark\">Détails</button>
                     </form>
                 </td>
@@ -842,7 +849,7 @@ function displayOrders()
 }
 
 
-// ***************** afficher la liste des commandes  ************************
+// ***************** afficher le détail d'une commande  ************************
 
 function displayOrderArticles($orderArticles)
 {
@@ -864,10 +871,10 @@ function displayOrderArticles($orderArticles)
         $articlesQuantity += $article['quantite'];
 
         echo "<tr>
-                <td>" . $article["nom"] . "</td>
-                <td>" . $article["prix"] . " € </td>
-                <td>" . $article["quantite"] . "</td>
-                <td>" . $article["prix"] * $article["quantite"] . " €</td>
+                <td>" . htmlspecialchars($article["nom"]) . "</td>
+                <td>" . htmlspecialchars($article["prix"]) . " € </td>
+                <td>" . htmlspecialchars($article["quantite"]) . "</td>
+                <td>" . htmlspecialchars($article["prix"]) * htmlspecialchars($article["quantite"]) . " €</td>
               </tr>";
     }
 
