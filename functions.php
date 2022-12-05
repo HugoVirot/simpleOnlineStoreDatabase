@@ -406,7 +406,7 @@ function saveOrder($totalPrice)
 {
     $db = getConnection();
 
-    $query = $db->prepare('INSERT INTO commandes (id_client, numero, date_commande, prix, livraison) VALUES(:id_client, :numero, :date_commande, :prix, :livraison)');
+    $query = $db->prepare('INSERT INTO commandes (id_client, numero, date_commande, prix, livraison, id_adresse) VALUES(:id_client, :numero, :date_commande, :prix, :livraison, :id_adresse)');
 
     $query->execute(array(
         'id_client' => $_SESSION['id'],
@@ -414,7 +414,7 @@ function saveOrder($totalPrice)
         'date_commande' => date("d-m-Y h:i:s"),
         'prix' => $totalPrice,
         'livraison' => $_SESSION['delivery'],
-        'id_adresse_livraison' => $_SESSION['deliveryAddress']['id']
+        'id_adresse' => $_SESSION['deliveryAddress']['id']
     ));
 
     $id = $db->lastInsertId();
