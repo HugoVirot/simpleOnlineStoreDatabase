@@ -6,6 +6,11 @@ include('functions.php');
 if (isset($_POST['addressChanged'])) {
     updateAddress();
 }
+
+if (isset($_POST['newAdress'])) {
+    createAddress($_SESSION['id']);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +20,7 @@ if (isset($_POST['addressChanged'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon compte - Arinfo, montres intemporelles <?php?></title>
+    <title>Mon compte - Arinfo, montres intemporelles</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 </head>
@@ -35,10 +40,36 @@ if (isset($_POST['addressChanged'])) {
         </div>
 
         <div class="container mt-3 text-center">
-            <h3>Modifier mon adresse</h3>
+            <h3>Modifier une adresse</h3>
         </div>
 
-        <?php displayAddress("changeAddress.php");?>
+        <?php displayAddresses("changeAddress.php"); ?>
+
+        <div class="container mt-3 text-center">
+            <h3>Ajouter une nouvelle adresse</h3>
+        </div>
+
+        <div class="container w-50 border border-dark bg-light mb-4 p-5">
+            <form action="changeAddress.php" method="post">
+                <div class="form-group">
+                    <label for="inputAddress">Adresse</label>
+                    <input name="address" type="text" class="form-control" id="inputAddress" placeholder="99 rue de l'horloge" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="inputZip">Code Postal</label>
+                        <input name="zipCode" type="text" class="form-control" id="inputZip" placeholder="12345" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputCity">Ville</label>
+                        <input name="city" type="text" class="form-control" id="inputCity" placeholder="Clockcity" required>
+                    </div>
+                </div>
+                <div class="row justify-content-center mt-2">
+                <button type="submit" class="btn btn-dark" name="newAdress" value="newAdress">Valider</button>
+                </div>
+            </form>
+        </div>
 
         <div class="container mt-3 text-center">
 
@@ -61,7 +92,7 @@ if (isset($_POST['addressChanged'])) {
                     </a>
                 </div>
             </div>
-            
+
         </div>
 
     </main>

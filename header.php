@@ -34,7 +34,7 @@
                             </a>
                         </li>
                         <?php
-                        if (!isset($_SESSION['id'])) {
+                        if (!isset($_SESSION['id'])) {  // si l'utilisateur n'est pas connecté
                             echo "<li class=\"nav-item\">
                                         <a class=\"nav-link\" href=\"connection.php\">Connexion / créer compte</a>
                                         </li>";

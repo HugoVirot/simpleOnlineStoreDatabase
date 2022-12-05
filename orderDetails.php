@@ -21,6 +21,10 @@ include('functions.php');
     <header>
         <?php
         include('header.php');
+
+        if(isset($_POST['livraison'])){
+            $_SESSION['displayedOrderDelivery'] = $_POST['livraison'];
+        }
         ?>
     </header>
 
@@ -39,7 +43,11 @@ include('functions.php');
         <div class="container-fluid p-5">
 
             <div class="row text-center mb-5 justify-content-center">
-                <h5>Date : <b><?php echo $_POST['orderDate'] ?></b> - montant total : <b><?php echo $_POST['orderTotal'] ?> €</b></h4>
+                <h5>Date et heure : <b><?php
+                                setlocale(LC_TIME, 'fr_FR.utf8', 'fra');
+                                echo utf8_encode(strftime("%A %d %B %Y - %r", strtotime($_POST['orderDate'])));
+                                ?>
+                    </b> - montant total : <b><?php echo $_POST['orderTotal'] ?> €</b></h4>
             </div>
             <div class="row text-center justify-content-center">
                 <?php displayOrderArticles(getOrderArticles($_POST['orderId'])); ?>

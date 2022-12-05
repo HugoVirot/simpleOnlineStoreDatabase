@@ -2,6 +2,7 @@
 session_start();
 
 include('functions.php');
+
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = array();
 }
@@ -40,7 +41,7 @@ if (isset($_POST['logout'])) {
 <body>
 
     <?php
-    include('./header.php');
+    include('./header.php');  
     ?>
 
     <main>

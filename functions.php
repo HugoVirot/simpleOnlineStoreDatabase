@@ -1,9 +1,10 @@
 <?php
 
-// ****************** connexion à la base de données OK**********************
+// ****************** connexion à la base de données **********************
 
 function getConnection()
 {
+    // try : je tente une connexion
     try {
         $db = new PDO(
             'mysql:host=localhost;dbname=online_store;charset=utf8',
@@ -11,6 +12,7 @@ function getConnection()
             '',
             array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC)
         );
+        // si ça ne marche pas : je mets fin au code php en affichant l'erreur
     } catch (Exception $e) {
         die('Erreur : ' . $e->getMessage());
     }
@@ -26,7 +28,9 @@ function getConnection()
 function getArticles()
 {
     $db = getConnection();
+    // je prépare une requête
     $query = $db->query('SELECT * FROM articles');
+    // j'exécute ma requête
     return $query->fetchAll();
 }
 
@@ -64,7 +68,7 @@ function showArticles($articles)
                 <img class=\"card-img-top\" src=\"images/" . htmlspecialchars($article['image']) . "\" alt=\"Card image cap\">
                 <div class=\"card-body\">
                     <h5 class=\"card-title font-weight-bold\">" . htmlspecialchars($article['nom']) . "</h5>
-                    <p class=\"card-text font-italic\">" . htmlspecialchars($article['description']) . "</p>
+                    <p class=\"card-text font-italic\">" . strip_tags($article['description']) . "</p>
                     <p class=\"card-text font-weight-light\">" . htmlspecialchars($article['prix']) . " €</p>
                     " . displayStock(htmlspecialchars($article['stock'])) . "
                     <form action=\"product.php\" method=\"post\">
@@ -250,6 +254,7 @@ function showCartContent($pageName)
 
 function showButtons()
 {
+    // si le panier est défini et contient des articles 
     if ($_SESSION['cart']) {
         echo   "<form action=\"panier.php\" method=\"post\" class=\"row justify-content-center text-dark font-weight-bold p-2\">
                  <input type=\"hidden\" name=\"emptyCart\" value=\"true\">
@@ -332,9 +337,15 @@ function calculateShippingFees()
 
 function calculateTotalPrice()
 {
-    $cartTotal = getCartTotal();
-    $shippingFees = calculateShippingFees();
-    return $cartTotal + $shippingFees;
+    // version avec frais de port "fixes" par articles
+    // return getCartTotal() + calculateShippingFees();
+
+    // version avec choix entre domicile et point-relais
+    if ($_SESSION['delivery'] == "domicile") {
+        return getCartTotal() + 10;
+    } else {
+        return getCartTotal() + 5;
+    }
 }
 
 
@@ -395,13 +406,15 @@ function saveOrder($totalPrice)
 {
     $db = getConnection();
 
-    $query = $db->prepare('INSERT INTO commandes (id_client, numero, date_commande, prix) VALUES(:id_client, :numero, :date_commande, :prix)');
+    $query = $db->prepare('INSERT INTO commandes (id_client, numero, date_commande, prix, livraison) VALUES(:id_client, :numero, :date_commande, :prix, :livraison)');
 
     $query->execute(array(
         'id_client' => $_SESSION['id'],
         'numero' => rand(1000000, 9999999),
         'date_commande' => date("d-m-Y h:i:s"),
         'prix' => $totalPrice,
+        'livraison' => $_SESSION['delivery'],
+        'id_adresse_livraison' => $_SESSION['deliveryAddress']['id']
     ));
 
     $id = $db->lastInsertId();
@@ -428,16 +441,12 @@ function saveOrder($totalPrice)
 
 function checkEmptyFields()
 {
-
-    $emptyFieldsFound = false;
-
     foreach ($_POST as $field) {
         if (empty($field)) {
-            $emptyFieldsFound = true;
+            return true;
         }
     }
-
-    return $emptyFieldsFound;
+    return false;
 }
 
 
@@ -475,93 +484,137 @@ function checkInputsLenght()
 }
 
 
-// ***************** vérifier le mot de passe ************************
+// ***************** vérifier que le mot de passe réunit tous les critères demandés ************************
 
 function checkPassword($password)
 {
-    $isPasswordSecured = false;
-
     // minimum 8 caractères et maximum 15, minimum 1 lettre, 1 chiffre et 1 caractère spécial
     $regex = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@$!%*?/&])(?=\S+$).{8,15}$^";
-
-    if (preg_match($regex, $password)) {
-        $isPasswordSecured = true;
-    }
-
-    return $isPasswordSecured;
+    return preg_match($regex, $password);
 }
 
+
+// ***************** vérifier que l'e-mail est déjà utilisé ************************
+
+function checkEmail($email)
+{
+    $db = getConnection();
+
+    $query = $db->prepare("SELECT * FROM clients WHERE email = ?");
+    $user = $query->execute([$email]);
+
+    if ($user) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // ***************** créer un utilisateur ************************
 
 function createUser()
 {
-    $db = getConnection();
+    $db = getConnection();  // on se connecte à la bdd
 
-    if (checkEmptyFields()) {
-        echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : un ou plusieurs champs vides !</div>";
+    if (checkEmptyFields()) {  // vérif si champs vides => message d'erreur si c'est le cas
+        echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger text-white\"> Attention : un ou plusieurs champs vides !</div>";
     } else {
 
-        if (!checkInputsLenght()) {
-            echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : longueur incorrecte d'un ou plusieurs champs !</div>";
+        if (checkInputsLenght() == false) {  // vérif si longeur des champs correcte
+            echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger text-white\"> Attention : longueur incorrecte d'un ou plusieurs champs !</div>";
         } else {
 
-            if (!checkPassword(strip_tags($_POST['password']))) {
-                echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger\"> Attention : sécurité du mot de passe insuffisante !</div>";
+            if (checkEmail($_POST['email'])) { // vérif si email déjà utilisé
+                echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger text-white\"> Attention : e-mail déjà utilisé !</div>";
             } else {
-                echo '<script>alert(\longueur champs ok!\')</script>';
-                $hashedPassword = password_hash(strip_tags($_POST['password']), PASSWORD_DEFAULT);
 
-                $query = $db->prepare('INSERT INTO clients (nom, prenom, email, mot_de_passe) VALUES(:nom, :prenom, :email, :mot_de_passe)');
-                $query->execute(array(
-                    'nom' =>  strip_tags($_POST['lastName']),
-                    'prenom' => strip_tags($_POST['firstName']),
-                    'email' =>  strip_tags($_POST['email']),
-                    'mot_de_passe' => $hashedPassword,
-                ));
+                if (!checkPassword(strip_tags($_POST['password']))) { // vérif si mdp réunit les critères requis
+                    echo "<div class=\"container w-50 text-center p-3 mt-2 bg-danger text-white\"> Attention : sécurité du mot de passe insuffisante !</div>";
+                } else {
 
-                $id = $db->lastInsertId();
+                    // hâchage du mot de passe
+                    echo '<script>alert(\longueur champs ok!\')</script>';
+                    $hashedPassword = password_hash(strip_tags($_POST['password']), PASSWORD_DEFAULT);
 
-                $query = $db->prepare('INSERT INTO adresses (id_client, adresse, code_postal, ville) VALUES(:id_client, :adresse, :code_postal, :ville)');
-                $query->execute(array(
-                    'id_client' => $id,
-                    'adresse' => strip_tags($_POST['address']),
-                    'code_postal' =>  strip_tags($_POST['zipCode']),
-                    'ville' =>  strip_tags($_POST['city']),
-                ));
+                    // insertion de l'utilisateur en base de données
+                    $query = $db->prepare('INSERT INTO clients (nom, prenom, email, mot_de_passe) VALUES(:nom, :prenom, :email, :mot_de_passe)');
+                    $query->execute(array(
+                        'nom' =>  strip_tags($_POST['lastName']),
+                        'prenom' => strip_tags($_POST['firstName']),
+                        'email' =>  strip_tags($_POST['email']),
+                        'mot_de_passe' => $hashedPassword,
+                    ));
 
-                echo '<script>alert(\'Le compte a bien été créé !\')</script>';
+                    // récupération de l'id de l'utilisateur créé
+                    $id = $db->lastInsertId();
+
+                    // insertion de son adresse dans la table adresses
+                    createAddress($id);
+
+                    // on renvoie un message de succès 
+                    echo '<script>alert(\'Le compte a bien été créé !\')</script>';
+                }
             }
         }
     }
 }
 
 
+// ******************** créer une nouvelle adresse ****************
+
+function createAddress($user_id)
+{
+    $db = getConnection();
+
+    $query = $db->prepare('INSERT INTO adresses (id_client, adresse, code_postal, ville) VALUES(:id_client, :adresse, :code_postal, :ville)');
+    $query->execute(array(
+        'id_client' => $user_id,
+        'adresse' => strip_tags($_POST['address']),
+        'code_postal' =>  strip_tags($_POST['zipCode']),
+        'ville' =>  strip_tags($_POST['city']),
+    ));
+}
+
 // ***************** se connecter  ************************
 
 function logIn()
 {
+    // connexion à la base de données
     $db = getConnection();
 
+    // on nettoie l'email saisi avec strip tags, et on le stocke dans la variable $userEmail
+    // pour le manipuler plus facilement
     $userEmail = strip_tags($_POST['email']);
 
+    // on fait une requête SQL pour vérifier si le client existe, grâce à son email
     $query = $db->prepare('SELECT * FROM clients WHERE email = ?');
     $query->execute([$userEmail]);
+    // on récupère le résultat de la requête (soit un utilisateur, soit rien)
     $result = $query->fetch();
 
+    // si la requête n'a rien récupéré => l'utilisateur n'existe pas
     if (!$result) {
+        // on renvoie un message d'erreur en JS via la fonction alert() (volontairement imprécis pour ne pas aider les hackers)
         echo '<script>alert(\'E-mail ou mot de passe incorrect !\')</script>';
-    } else {
 
+        // sinon => l'utilisateur existe
+    } else {
+        // on vérifie que son mot de passe saisi (en clair) correspond à son mot de passe en base de données (hashé)
+        // pour cela, on utilise la fonction password_verify, qui compare un mdp en clair (1er paramètre) et un mdp hashé (2è p.)
+        // elle renvoie true si les deux correspondent (le mpd hashé contient des informations qui permettent de faire ça)
         $isPasswordCorrect = password_verify($_POST['password'], $result['mot_de_passe']);
 
+        // si les deux correspondent => mot de passe ok => on stocke les infos de l'utilisateur dans la session
+        // on stocke aussi son adresse g^râce à la fonction setSessionAdress()
+        // et on renvoie un message de succès
         if ($isPasswordCorrect) {
             $_SESSION['id'] = $result['id'];
             $_SESSION['nom'] = $result['nom'];
             $_SESSION['prenom'] = $result['prenom'];
             $_SESSION['email'] = $userEmail;
-            setSessionAddress();
+            setSessionAddresses();
             echo '<script>alert(\'Vous êtes connecté !\')</script>';
+            // sinon, on renvoie un message d'erreur (volontairement imprécis pour ne pas aider les hackers)
         } else {
             echo '<script>alert(\'E-mail ou mot de passe incorrect !\')</script>';
         }
@@ -574,7 +627,6 @@ function logIn()
 function logOut()
 {
     $_SESSION = array();
-    session_destroy();
     echo '<script>alert(\'Vous avez bien été déconnecté !\')</script>';
 }
 
@@ -586,30 +638,31 @@ function logOut()
 
 // ***************** récupérer l'adresse du client en bdd ************************
 
-function getUserAdress()
+function getUserAdresses()
 {
     $db = getConnection();
 
     $query = $db->prepare('SELECT * FROM adresses WHERE id_client = ?');
     $query->execute([$_SESSION['id']]);
-    return $query->fetch();
+    return $query->fetchAll();
 }
 
 
 // ***************** définir / mettre à jour l'adresse de la session ************************
 
-function setSessionAddress()
+function setSessionAddresses()
 {
-    $_SESSION['adresse'] = getUserAdress();
+    $_SESSION['adresses'] = getUserAdresses();
 }
 
 
 // ***************** afficher formulaire modification adresse  ************************
 
-function displayAddress($currentPage)
+function displayAddresses($currentPage)
 {
-    $address = getUserAdress();
+    $addresses = getUserAdresses();
 
+    foreach ($addresses as $address) {
     echo "<div class=\"container p-5 w-50 border border-dark bg-light mb-4 p-4\">
             <form action=\"" . $currentPage . "\" method=\"post\">
                 <input type=\"hidden\" name=\"addressChanged\">
@@ -633,6 +686,7 @@ function displayAddress($currentPage)
                 </div>
             </form>
         </div>";
+    }
 }
 
 
@@ -664,6 +718,7 @@ function updateUser()
     if (!checkEmptyFields()) {
 
         $db = getConnection();
+
         $firstName = strip_tags($_POST['firstName']);
         $lastName = strip_tags($_POST['lastName']);
         $email = strip_tags($_POST['email']);
@@ -707,13 +762,15 @@ function displayInformations($currentPage)
                                     </div>
                                     <div class=\"form-group col-md-6\">
                                         <label for=\"inputName\">Nom</label>
-                                        <input name=\"lastName\" type=\"text\" class=\"form-control\" id=\"inputName\" value=\"" . htmlspecialchars($_SESSION['nom']) . "\" required>
+                                        <input name=\"lastName\" type=\"text\" class=\"form-control\" id=\"inputName\" 
+                                        value=\"" . htmlspecialchars($_SESSION['nom']) . "\" required>
                                     </div>
                                 </div>
                                 <div class=\"form-row justify-content-center\">
                                     <div class=\"form-group col-md-6\">
                                         <label for=\"inputEmail\">Email</label>
-                                        <input name=\"email\" type=\"email\" class=\"form-control\" id=\"inputEmail\" value=\"" . htmlspecialchars($_SESSION['email']) . "\" required>
+                                        <input name=\"email\" type=\"email\" class=\"form-control\" id=\"inputEmail\" 
+                                        value=\"" . htmlspecialchars($_SESSION['email']) . "\" required>
                                     </div>
                                 </div>
                                 <div class=\"row justify-content-center mt-2\">
@@ -800,7 +857,10 @@ function getOrders()
 function getOrderArticles($orderId)
 {
     $db = getConnection();
-    $query = $db->prepare('SELECT * FROM commande_articles ca INNER JOIN articles a ON a.id = ca.id_article WHERE id_commande = ?');
+    $query = $db->prepare('SELECT * FROM commande_articles AS ca 
+                            INNER JOIN articles AS a 
+                            ON a.id = ca.id_article 
+                            WHERE id_commande = ?');
     $query->execute([$orderId]);
     return $query->fetchAll();
 }
@@ -812,7 +872,10 @@ function displayOrders()
 {
     $orders = getOrders();
 
-    echo "<table class=\"table  table-striped\">
+    if (count($orders) == 0) {
+        echo "<p>Vous n'avez pas encore passé de commande !</p>";
+    } else {
+        echo "<table class=\"table  table-striped\">
     <thead class=\"thead-dark\">
       <tr>
         <th scope=\"col\">Numéro</th>
@@ -823,9 +886,9 @@ function displayOrders()
     </thead>
     <tbody>";
 
-    foreach ($orders as $order) {
+        foreach ($orders as $order) {
 
-        echo "<tr>
+            echo "<tr>
                 <td>" . htmlspecialchars($order["numero"]) . "</td>
                 <td>" . htmlspecialchars($order["date_commande"]) . "</td>
                 <td>" . htmlspecialchars($order["prix"]) . " €</td>
@@ -835,17 +898,19 @@ function displayOrders()
                         <input type=\"hidden\" name=\"orderNumber\" value=\"" . htmlspecialchars($order["numero"]) . "\">
                         <input type=\"hidden\" name=\"orderTotal\" value=\"" . htmlspecialchars($order["prix"]) . "\">
                         <input type=\"hidden\" name=\"orderDate\" value=\"" . htmlspecialchars($order["date_commande"]) . "\">
+                        <input type=\"hidden\" name=\"livraison\" value=\"" . htmlspecialchars($order["livraison"]) . "\">
                         <button type=\"submit\"  class=\"btn btn-dark\">Détails</button>
                     </form>
                 </td>
               </tr>";
-    }
-    echo "</tr>
+        }
+        echo "</tr>
         </td>
         </tr>";
 
-    echo "</tbody>
+        echo "</tbody>
     </table>";
+    }
 }
 
 
@@ -864,11 +929,12 @@ function displayOrderArticles($orderArticles)
     </thead>
     <tbody>";
 
-    $articlesQuantity = 0;
+    // pour calculer les frais de port fixes (3€ * nombre de montres)
+    //$articlesQuantity = 0;
 
     foreach ($orderArticles as $article) {
 
-        $articlesQuantity += $article['quantite'];
+        //$articlesQuantity += $article['quantite'];
 
         echo "<tr>
                 <td>" . htmlspecialchars($article["nom"]) . "</td>
@@ -878,12 +944,31 @@ function displayOrderArticles($orderArticles)
               </tr>";
     }
 
+    // affichage des frais de livraison
+    // on les détermine à partir du choix fait lors de cette commande
+    // il a été stocké dans la session en haut de la page orderdetails
+    $deliveryCost = 0;
+
+    if ($_SESSION['displayedOrderDelivery'] == 'domicile') {
+        $deliveryCost = 10;
+    } else {
+        $deliveryCost = 5;
+    }
+
+    $deliveryCost = number_format($deliveryCost, 2, ',', 0);
+
     echo "<tr>
-    <td>Frais de port</td>
-    <td>" .  number_format(3, 2, ',', 0)  . " €</td>
-    <td> $articlesQuantity </td>
-    <td>" .  number_format(3 * $articlesQuantity, 2, ',', 0)  . " €</td>
+    <td>mode de livraison choisi : " . str_replace("_", " ", $_SESSION['displayedOrderDelivery']) . "</td>
+    <td>" .  $deliveryCost  . " €</td>
+    <td>1</td>
+    <td>" .  $deliveryCost  . " €</td>
     </tr>
     </tbody>
     </table>";
 }
+
+// affichage des frais de port (version avec frais de port fixes) 
+//<td>Frais de port</td>
+//<td>" .  number_format(3, 2, ',', 0)  . " €</td>
+// <td> $articlesQuantity </td>
+// <td>" .  number_format(3 * $articlesQuantity, 2, ',', 0)  . " €</td>
