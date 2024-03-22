@@ -2,22 +2,22 @@
 session_start();
 include('functions.php');
 
-if (isset($_POST['userCreated'])) {
+// ************* si on vient de la page inscription *************
+if (isset($_POST['prenom'])) {
+    //var_dump($_POST);
     createUser();
 }
+
+// ************* si on vient de la page connexion *************
+if (isset($_POST['userConnection'])) {
+    if (!isset($_SESSION['id'])) {
+        logIn();
+    } else {
+        echo "<script>alert(\"Vous êtes déjà connecté !\")</script>";
+    }
+}
+include('./head.php');
 ?>
-
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Arinfo, montres intemporelles</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-</head>
 
 <body>
     <header>
@@ -39,7 +39,7 @@ if (isset($_POST['userCreated'])) {
         </div>
 
         <div class="container w-50 border border-dark bg-light mb-4 p-5">
-            <form action="index.php" method="post">
+            <form action="connection.php" method="post">
                 <input type="hidden" name="userConnection">
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -50,17 +50,17 @@ if (isset($_POST['userCreated'])) {
                     <label for="password">Mot de passe</label>
                     <input name="password" type="password" class="form-control" id="password" placeholder="entrez le mot de passe">
                 </div>
-                <div class="row justify-content-center">
+                <div class="row justify-content-center mt-3">
                     <button type="submit" class="btn btn-dark">Valider</button>
                 </div>
             </form>
         </div>
 
-        <div class="container w-50 p-3">
-            <h3 class="mb-3 text-center">Pas encore inscrit ?</h3>
+        <div class="container w-50 p-3  text-center">
+            <h3 class="mb-3">Pas encore inscrit ?</h3>
             <div class="row justify-content-center">
                 <a href="registration.php">
-                    <button class="btn btn-dark">Je crée mon compte</button>
+                    <button class="btn btn-dark px-5">Je crée mon compte</button>
                 </a>
             </div>
         </div>
@@ -72,8 +72,5 @@ if (isset($_POST['userCreated'])) {
     ?>
 
 </body>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
 
 </html>

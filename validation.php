@@ -31,9 +31,9 @@ if (isset($_POST['userModified'])) {
 }
 
 if (isset($_POST['adresseLivraisonId'])) {
-    
-    foreach ($_SESSION['adresses'] as $adresse){
-        if ($adresse['id'] == $_POST['adresseLivraisonId']){
+
+    foreach ($_SESSION['adresses'] as $adresse) {
+        if ($adresse['id'] == $_POST['adresseLivraisonId']) {
             $_SESSION['deliveryAddress'] = $adresse;
         }
     }
@@ -45,22 +45,8 @@ if (isset($_POST['delivery'])) {
     $_SESSION['delivery'] = $_POST['delivery'];
 }
 
-var_dump($_SESSION);
-var_dump($_POST);
-
+include('./head.php');
 ?>
-
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valider la commande - Arinfo, montres intemporelles</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-</head>
 
 <body>
     <header>
@@ -189,39 +175,37 @@ var_dump($_POST);
 
             <!-- ******** bouton de confirmation : affiché seulement si panier pas vide, mode de livraison et adresse choisis ******** -->
 
-            <?php if (count($_SESSION['cart']) > 0 && isset($_SESSION['delivery']) && isset ($_SESSION['deliveryAddress'])) {
-                echo "<div class=\"row justify-content-center p-4\">
-                    <button type=\"button\" class=\"btn btn-dark\" data-toggle=\"modal\" data-target=\"#confirmation\">Confirmer l'achat</button>
+            <?php if (count($_SESSION['cart']) > 0 && isset($_SESSION['delivery']) && isset($_SESSION['deliveryAddress'])) {
+                echo "<div class=\"row justify-content-center w-50 mx-auto p-4\">
+                    <button type=\"button\" class=\"btn btn-lg btn-dark\" data-bs-toggle=\"modal\" data-bs-target=\"#confirmation\">Confirmer l'achat</button>
                 </div>";
             } else {
                 echo "<div class=\"w-75 mx-auto bg-danger text-white m-4 p-3 rounded\">Choisissez un mode de livraison et une adresse de livraison pour valider votre commande</div>";
-            } 
+            }
             ?>
 
             <!-- Modal -->
-            <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmation" aria-hidden="true">
-                <div class="modal-dialog" role="document" pointer-events="all">
+            <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header text-light bg-dark text-center">
                             <h5 class="modal-title text-center" id="exampleModalLabel">Félicitations !</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <h4 class="text-success mt-3">Votre commande a été validée.</h4><br>
+                        <div class="modal-body py-5">
+                            <h1 class="text-success mt-3 fs-2">Votre commande a été validée.</h1><br>
                             <br>
-                            <h5>Montant total : <?php echo $totalPrice ?> €</h5><br>
+                            <p class="fw-bold">Montant total : <?php echo $totalPrice ?> €</p><br>
                             <br>
                             Elle sera expédiée le <span class="font-weight-bold">
                                 <?php echo date('d-m-Y', strtotime(date('d-m-Y') . ' + 3 days')); ?></span><br>
                             <br>
-                            Merci pour votre confiance.
+                            Merci pour votre confiance !
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer text-center">
                             <form action="index.php" method="post">
                                 <input type="hidden" name="orderValidated" value="true">
-                                <input type="submit" class="btn btn-secondary" value="Retour à l'accueil">
+                                <input type="submit" class="btn btn-dark btn-lg" value="Retour à l'accueil">
                             </form>
                         </div>
                     </div>
@@ -236,11 +220,5 @@ var_dump($_POST);
     ?>
 
 </body>
-<script>
-
-</script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
 
 </html>
