@@ -17,7 +17,7 @@ if (isset($_POST['logout'])) {
 }
 
 // si on vient de la page connexion, c'est forcément un succès => on affiche le message de succès
-if ($_SERVER['HTTP_REFERER'] == "http://localhost/simpleOnlineStoreDatabase/connection.php") {
+if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] == "http://localhost/simpleOnlineStoreDatabase/connection.php") {
     echo '<script>alert(\'Vous êtes connecté !\')</script>';
 }
 

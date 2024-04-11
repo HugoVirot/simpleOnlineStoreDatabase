@@ -495,7 +495,7 @@ function checkInputsLenght()
         return false;
     }
 
-    if (strlen($_POST['addresse']) > 40 || strlen($_POST['addresse']) < 5) {
+    if (strlen($_POST['adresse']) > 40 || strlen($_POST['adresse']) < 5) {
         return false;
     }
 
@@ -591,7 +591,7 @@ function createAddress($user_id)
     $query = $db->prepare('INSERT INTO adresses (id_client, adresse, code_postal, ville) VALUES(:id_client, :adresse, :code_postal, :ville)');
     $query->execute([
         'id_client' => $user_id,
-        'adresse' => strip_tags($_POST['addresse']),
+        'adresse' => strip_tags($_POST['adresse']),
         'code_postal' =>  strip_tags($_POST['code_postal']),
         'ville' =>  strip_tags($_POST['ville']),
     ]);
@@ -696,8 +696,8 @@ function displayAddresses($currentPage)
                         <input name=\"zipCode\" type=\"text\" class=\"form-control\" id=\"inputZip\"  value=\"" . htmlspecialchars($address['code_postal']) . "\" required>
                     </div>
                     <div class=\"form-group col-md-6 mb-3\">
-                        <label for=\"inputCity\">Ville</label>
-                        <input name=\"city\" type=\"text\" class=\"form-control\" id=\"inputCity\" value=\"" . htmlspecialchars($address['ville']) . "\" required>
+                        <label for=\"inputville\">Ville</label>
+                        <input name=\"ville\" type=\"text\" class=\"form-control\" id=\"inputville\" value=\"" . htmlspecialchars($address['ville']) . "\" required>
                     </div>
                 </div>
                 <div class=\"row justify-content-center mt-2\">
@@ -719,7 +719,7 @@ function updateAddress()
     $query->execute(array(
         'adresse' =>  strip_tags($_POST['address']),
         'code_postal' => strip_tags($_POST['zipCode']),
-        'ville' =>  strip_tags($_POST['city']),
+        'ville' =>  strip_tags($_POST['ville']),
         'id' => strip_tags($_POST['addressId'])
     ));
 

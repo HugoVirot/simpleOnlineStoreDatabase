@@ -42,20 +42,20 @@ include('./head.php');
             <form action="changeAddress.php" method="post">
                 <div class="form-group mb-3">
                     <label for="inputAddress">Adresse</label>
-                    <input name="address" type="text" class="form-control" id="inputAddress" placeholder="99 rue de l'horloge" required>
+                    <input name="adresse" type="text" class="form-control" id="adresse" placeholder="99 rue de l'horloge" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6 mb-3">
-                        <label for="inputZip">Code Postal</label>
-                        <input name="zipCode" type="text" class="form-control" id="inputZip" placeholder="12345" required>
+                        <label for="code_postal">Code Postal</label>
+                        <input name="code_postal" type="text" class="form-control" id="code_postal" placeholder="12345" required>
                     </div>
                     <div class="form-group col-md-6 mb-3">
-                        <label for="inputCity">Ville</label>
-                        <input name="city" type="text" class="form-control" id="inputCity" placeholder="Clockcity" required>
+                        <label for="ville">Ville</label>
+                        <input name="ville" type="text" class="form-control" id="ville" placeholder="Clockville" required>
                     </div>
                 </div>
                 <div class="row justify-content-center mt-2">
-                <button type="submit" class="btn btn-dark" name="newAdress" value="newAdress">Valider</button>
+                <button type="submit" class="btn btn-dark" name="newAdress">Valider</button>
                 </div>
             </form>
         </div>
